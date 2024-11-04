@@ -1,5 +1,5 @@
-// Initialize map
-var map = L.map('mapid').setView([49.2827, -123.1207], 10); // Center on Vancouver
+// this is the start of the map 
+var map = L.map('mapid').setView([49.2827, -123.1207], 10); // center on Vancouver city coz we here
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18,
 }).addTo(map);
@@ -51,5 +51,5 @@ function showReportDetails(report) {
   alert(`Emergency Details:\n\nType: ${report.type}\nLocation: ${report.location}\nComments: ${report.comments}`);
 }
 
-// Placeholder for passcode management and DOM Storage API logic
-// Team members can add functionality for editing, deleting, and password protection
+// apne ko placeholder for passcode management and DOM Storage API logic banana baki hai 
+// we also have to add functionality for editing, deleting, and password protection na ??
