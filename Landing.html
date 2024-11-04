@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emergency Reporting System</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Emergency Reporting System Group 24</title>
+  <link rel="stylesheet" href="style1.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
@@ -15,7 +15,7 @@
 
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="#">Emergency Reporting</a>
+    <a class="navbar-brand" href="#">Emergency Reporting System</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -33,6 +33,7 @@
     <form id="emergencyForm">
       <div class="form-group">
         <label for="reporterName">Name</label>
+        <!-- Made them required so without these we could not submit the form hence the (required) thing at the end -->
         <input type="text" class="form-control" id="reporterName" required>
       </div>
       <div class="form-group">
@@ -41,6 +42,7 @@
       </div>
       <div class="form-group">
         <label for="emergencyType">Emergency Type</label>
+        <!-- made a small option selection idk if the dropdown style looks good or not but try -->
         <select class="form-control" id="emergencyType">
           <option>Fire</option>
           <option>Shooting</option>
@@ -57,6 +59,7 @@
         <input type="url" class="form-control" id="pictureLink">
       </div>
       <div class="form-group">
+        <!-- A small div to add comments for a descibtion of the insident -->
         <label for="comments">Comments</label>
         <textarea class="form-control" id="comments"></textarea>
       </div>
@@ -64,7 +67,7 @@
     </form>
   </div>
 
-  <!-- Map and Emergency List -->
+  <!-- Map and Emergency List area, yeh nahi ata bro mere ko toh sath karlete hai-->
   <div class="container mt-5">
     <h2 id="map">Emergency Map</h2>
     <div id="mapid" style="height: 400px;"></div>
@@ -74,6 +77,10 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- The hashing for the password generation has to be also done which i also do not know how to do -->
+  <!-- lastly we have to have 1 password or each operator has to have a unique password ?? -->
+  <!-- I also wanted to make a login option at the side so that normally we can make a report and submit but when we login as operators we should see different options toh i think a new page with the same layout should also be done but with the additional buttons and stuff -->
+
+  <script src="workings.js"></script>
 </body>
 </html>
