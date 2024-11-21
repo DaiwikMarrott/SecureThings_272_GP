@@ -4,10 +4,9 @@ Group Project for CMPT272
 
 ## ToDos:
 
-- [] Update UI (make it look better than it is as of now)
-- [] Connect location to frontend
-- [] Add functionality for Emergency handler (includes passcode)
-- [] Responsiveness
+- [ ] Update UI (make it look better than it is as of now & responsive) [Priyansh]
+- [ ] Connect location to frontend + table & additional details [Luvveer + Sanchit]
+- [ ] Add functionality for Emergency handler (includes passcode) [Yasir]
 
 # Metro Vancouver 9-1-1 Emergency Call Answer System
 
