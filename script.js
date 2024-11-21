@@ -6,27 +6,50 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Array to store emergency reports
 let reports = [];
+let mapMarkers = []
 
 // Form submission
 document.getElementById("emergencyForm").addEventListener("submit", function(event) {
   event.preventDefault();
-
+  const locationName = document.getElementById("location").value;
   // Get form data
   let report = {
     name: document.getElementById("reporterName").value,
     phone: document.getElementById("reporterPhone").value,
     type: document.getElementById("emergencyType").value,
-    location: document.getElementById("location").value,
+    location: locationName,
     pictureLink: document.getElementById("pictureLink").value,
     comments: document.getElementById("comments").value,
     time: new Date().toLocaleString(),
-    status: "OPEN"
+    status: "OPEN"  // Will make the deletion of markers when status is "CLOSED" is created in other words the code for changing the status is complted.
   };
-
+  creating_long_lat(locationName,report.type);
   // Save report
   reports.push(report);
   displayReports();
 });
+
+  function creating_long_lat(locationName,type){ // Using the location from the fucking form to create a long and lat value using nominatim which is a part of openstreetmap.
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}`)
+  .then(response => response.json())
+  .then(data => {
+    if (data.length > 0) {
+      const latitude = data[0].lat;
+      const longitude = data[0].lon;
+
+      let marker = L.marker([latitude, longitude]).addTo(map)
+      .bindPopup(`<strong>${locationName}</strong> <br> Type: ${type}`)
+      .openPopup();
+
+      mapMarkers.push(marker);
+    } else {
+      alert("Mc Dont know the correct spelling madharchod. Correct it and try again asshole.");
+    }
+  })
+  .catch( error => {
+    console.error('Error fetching geocoding data (nominatim):', error);
+  });
+}
 
 // Function to display reports in list and map
 function displayReports() {
@@ -38,18 +61,5 @@ function displayReports() {
     listItem.innerText = `${report.time} - ${report.type} at ${report.location}`;
     listItem.onclick = () => { showReportDetails(report); };
     reportList.appendChild(listItem);
-
-    // Add marker to map
-    L.marker([49.2827, -123.1207]).addTo(map) // Example coordinates, update with geolocation logic if needed
-      .bindPopup(`${report.type} at ${report.location}`)
-      .on('click', () => { showReportDetails(report); });
   });
 }
-
-// Show report details
-function showReportDetails(report) {
-  alert(`Emergency Details:\n\nType: ${report.type}\nLocation: ${report.location}\nComments: ${report.comments}`);
-}
-
-// apne ko placeholder for passcode management and DOM Storage API logic banana baki hai 
-// we also have to add functionality for editing, deleting, and password protection na ??
