@@ -9,6 +9,15 @@ let reports = [];
 let mapMarkers = [];
 let crossSymbol = "&#x274C;";
 
+// Helper function to convert string to title case
+function toTitleCase(str) {
+  // hello world becomes -> Hello World
+  return str.replace(
+    /\w\S*/g,
+    (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+  );
+}
+
 // Enabling Local Storage so that content does not vanish on page reload
 function saveReportsToLocalStorage() {
   const reportsToSave = reports.map((report) => {
@@ -55,7 +64,7 @@ function formatDateTime(date) {
 
   hours = hours % 12;
   hours = hours ? hours : 12; // the hour '0' should be '12'
-  hours = String(hours).padStart(2, "0");
+  hours = String(hours); // .padStart(2, "0");
 
   return `${year}-${month}-${day} (${hours}:${minutes} ${ampm})`;
 }
@@ -64,7 +73,7 @@ function formatDateTime(date) {
 async function handleFormSubmission(event) {
   event.preventDefault();
 
-  const locationName = document.getElementById("location").value;
+  const locationName = toTitleCase(document.getElementById("location").value);
 
   // Create report object
   const report = {
@@ -79,6 +88,7 @@ async function handleFormSubmission(event) {
     moreInfo: false,
     delete: false,
     marker: null,
+    locationNameFromAPI: null,
   };
 
   // Process the report
@@ -128,13 +138,12 @@ function creating_long_lat(locationName, type, reportIndex) {
             const locationNameFromAPI = data[0].name;
             let geoMarker = L.marker([latitude, longitude])
               .addTo(map)
-              .bindPopup(
-                `<strong>${locationNameFromAPI}</strong> <br> Type: ${type}`
-              )
+              .bindPopup(`<strong>${locationName}</strong> <br> Type: ${type}`)
               .openPopup();
 
             reports[reportIndex].marker = geoMarker;
-            reports[reportIndex].location = locationNameFromAPI;
+            reports[reportIndex].location = locationName;
+            reports[reportIndex].locationNameFromAPI = locationNameFromAPI;
             reports[reportIndex].markerPosition = geoMarker.getLatLng();
             resolve();
           } else {
@@ -160,7 +169,7 @@ function initTable(headers) {
     th.scope = "col";
     if (key === "moreInfo" || key === "delete") {
       th.textContent = "";
-    } else if (key !== "marker") {
+    } else if (key !== "marker" && key !== "locationNameFromAPI") {
       th.textContent = key.charAt(0).toUpperCase() + key.slice(1);
     }
     headerRow.appendChild(th);
@@ -187,7 +196,7 @@ function displayReports() {
     const tbody = document.createElement("tbody");
     reports.forEach((report, index) => {
       const reportDisplay = {
-        location: report.location,
+        location: report.locationNameFromAPI,
         type: report.type,
         time: report.time,
         status: report.status,
@@ -241,7 +250,8 @@ function deleteRow(index) {
 
 function tooltip(report) {
   // For Priyansh & Yasir
-  /* Create the map tooltip here. You can access report object for details and use it here. Manipulate DOM to achieve this. */
+  /* Create the map tooltip here. You can access report object for details and use it here. Manipulate DOM to achieve this. 
+      Location input by user: location, Location fetched from API: locationNameFromAPI*/
   console.log("For Debugging: Tooltip called for report\n");
   console.log(report);
 }
