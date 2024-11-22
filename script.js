@@ -3,9 +3,11 @@ var map = L.map("mapid").setView([49.2827, -123.1207], 10); // center on Vancouv
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18,
 }).addTo(map);
+map.on("moveend", filterReportsByMapBounds);
 
 // Array to store emergency reports and map markers
 let reports = [];
+let sortState = {};
 let mapMarkers = [];
 let crossSymbol = "&#x274C;";
 let locationInvalid = false;
@@ -86,7 +88,7 @@ async function loadReportsFromLocalStorage() {
         reports.push(report);
       }
     }
-    displayReports();
+    displayReports(parsedReports);
   }
 }
 
@@ -138,7 +140,7 @@ async function handleFormSubmission(event) {
     reports.push(report);
     try {
       await creating_long_lat(locationName, report.type, reports.length - 1);
-      displayReports();
+      filterReportsByMapBounds();
       saveReportsToLocalStorage();
     } catch (error) {
       console.error("Error processing report:", error);
@@ -484,7 +486,7 @@ function initTable(headers) {
   return thead;
 }
 
-function displayReports() {
+function displayReports(reports) {
   const reportList = document.getElementById("reports");
   reportList.innerHTML = ""; // Clear previous content
   const tableHeaders = [
@@ -511,6 +513,10 @@ function displayReports() {
       };
       // only include fields that are required as per demo image in project PDF
       const row = document.createElement("tr");
+      row.style.cursor = "pointer";
+      row.onclick = function () {
+        showMarkerPopup(index);
+      };
       // For each key in reportDisplay, adding rows with respective value
       Object.entries(reportDisplay).forEach(([key, value]) => {
         const td = document.createElement("td");
@@ -518,7 +524,8 @@ function displayReports() {
           // Add 'cross' delete symbol
           td.innerHTML = crossSymbol;
           td.style.cursor = "pointer";
-          td.onclick = function () {
+          td.onclick = function (e) {
+            e.stopPropagation();
             deleteRow(index);
           };
         } else if (key === "moreInfo" && reportDisplay.moreInfo === false) {
@@ -529,6 +536,7 @@ function displayReports() {
           a.textContent = "MORE INFO";
           a.onclick = function (e) {
             e.preventDefault();
+            e.stopPropagation();
             // Calls tooltip function: For YASIR & PRIYANSH
             tooltip(report);
           };
@@ -545,10 +553,85 @@ function displayReports() {
     });
     // Add table body
     reportList.appendChild(tbody);
+    tableHeaders.forEach((header, index) => {
+      const th = reportList.querySelector(`th:nth-child(${index + 1})`);
+      th.style.cursor = "pointer";
+      th.addEventListener("click", () => sortTable(index));
+    });
   } else {
     // Handling edge case when no report is there
     reportList.textContent = "No reports available.";
   }
+}
+
+function updateSortIndicators(sortedColumnIndex) {
+  const headers = document.querySelectorAll("#reports th");
+  headers.forEach((header, index) => {
+    header.classList.remove("sorted-asc", "sorted-desc");
+    if (index === sortedColumnIndex) {
+      if (sortState[sortedColumnIndex]) {
+        header.classList.add("sorted-asc");
+      } else {
+        header.classList.add("sorted-desc");
+      }
+    }
+  });
+}
+
+function addSortListeners() {
+  const tableHeaders = [
+    "location",
+    "type",
+    "time",
+    "status",
+    "moreInfo",
+    "delete",
+  ];
+  tableHeaders.forEach((header, index) => {
+    const th = reportList.querySelector(`th:nth-child(${index + 1})`);
+    th.style.cursor = "pointer";
+    th.addEventListener("click", () => sortTable(index));
+  });
+}
+
+function sortTable(columnIndex) {
+  const table = document.getElementById("reports");
+  const tbody = table.querySelector("tbody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+
+  // Toggle sort direction
+  sortState[columnIndex] = !sortState[columnIndex];
+
+  rows.sort((a, b) => {
+    const aValue = a.cells[columnIndex].textContent;
+    const bValue = b.cells[columnIndex].textContent;
+
+    if (sortState[columnIndex]) {
+      return aValue.localeCompare(bValue);
+    } else {
+      return bValue.localeCompare(aValue);
+    }
+  });
+
+  // Clear the table body
+  tbody.innerHTML = "";
+
+  // Append sorted rows
+  rows.forEach((row) => tbody.appendChild(row));
+
+  // Update header appearance
+  updateSortIndicators(columnIndex);
+}
+
+function filterReportsByMapBounds() {
+  const bounds = map.getBounds();
+  const filteredReports = reports.filter((report) => {
+    if (report.marker) {
+      return bounds.contains(report.marker.getLatLng());
+    }
+    return false;
+  });
+  displayReports(filteredReports);
 }
 
 function deleteRow(index) {
@@ -573,8 +656,16 @@ function tooltip(report) {
 // Load saved reports and display them
 (async function initializeApp() {
   await loadReportsFromLocalStorage();
-  displayReports();
+  filterReportsByMapBounds();
 })();
+
+function showMarkerPopup(index) {
+  const report = reports[index];
+  if (report.marker) {
+    report.marker.openPopup();
+    map.panTo(report.marker.getLatLng());
+  }
+}
 
 // FOR DEBUGGING ONLY
 // Clears local storage to use fresh content
