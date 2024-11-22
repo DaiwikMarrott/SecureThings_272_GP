@@ -117,7 +117,7 @@ function creating_long_lat(locationName, type, reportIndex) {
       fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
           locationName
-        )}&countrycodes=ca&layer=[address,]`
+        )}&countrycodes=ca`
       )
         .then((response) => response.json())
         .then((data) => {
