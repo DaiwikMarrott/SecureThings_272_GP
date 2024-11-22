@@ -8,6 +8,19 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 let reports = [];
 let mapMarkers = [];
 let crossSymbol = "&#x274C;";
+let locationInvalid = false;
+let correctPhone = false,
+  incorrectPhone = false,
+  requiredPhone = false,
+  correctName = false,
+  incorrectName = false,
+  requiredName = false,
+  correctLocation = false,
+  incorrectLocation = false,
+  requiredLocation = false,
+  correctPictureLink = false,
+  incorrectPictureLink = false,
+  requiredPictureLink = false;
 
 // Helper function to convert string to title case
 function toTitleCase(str) {
@@ -16,6 +29,31 @@ function toTitleCase(str) {
     /\w\S*/g,
     (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
   );
+}
+
+function validatePhoneNumber(phone) {
+  // This regex matches common North American phone number formats
+  const phoneRegex =
+    /^(\+1|1)?[-.\s]?\(?[2-9]\d{2}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/;
+  return phoneRegex.test(phone);
+}
+
+function validateName(name) {
+  // checking if name field is empty
+  return name.trim() !== "";
+}
+
+function validatePictureLink(link) {
+  // Regular expression for a valid URL ending with an image file extension
+  const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i;
+  const urlRegex =
+    /^(https?:\/\/)([\w\-]+(\.[\w\-]+)+)(:[0-9]+)?(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/;
+
+  // Check if the link matches a valid URL and ends with an image extension
+  if (urlRegex.test(link) && imageExtensions.test(link)) {
+    return true; // Valid picture link
+  }
+  return false; // Invalid picture link
 }
 
 // Enabling Local Storage so that content does not vanish on page reload
@@ -64,7 +102,6 @@ function formatDateTime(date) {
 
   hours = hours % 12;
   hours = hours ? hours : 12; // the hour '0' should be '12'
-  hours = String(hours); // .padStart(2, "0");
 
   return `${year}-${month}-${day} (${hours}:${minutes} ${ampm})`;
 }
@@ -72,40 +109,49 @@ function formatDateTime(date) {
 // Form submission handler
 async function handleFormSubmission(event) {
   event.preventDefault();
+  if (incorrectPhone) {
+    return;
+  } else if (correctPhone) {
+    const locationName = toTitleCase(document.getElementById("location").value);
 
-  const locationName = toTitleCase(document.getElementById("location").value);
+    // Create report object
+    const report = {
+      name: document.getElementById("reporterName").value,
+      phone: document.getElementById("reporterPhone").value,
+      type: document.getElementById("emergencyType").value,
+      location: locationName,
+      pictureLink: document.getElementById("pictureLink").value,
+      comments: document.getElementById("comments").value,
+      time: formatDateTime(new Date()),
+      status: "OPEN",
+      moreInfo: false,
+      delete: false,
+      marker: null,
+      locationNameFromAPI: null,
+    };
 
-  // Create report object
-  const report = {
-    name: document.getElementById("reporterName").value,
-    phone: document.getElementById("reporterPhone").value,
-    type: document.getElementById("emergencyType").value,
-    location: locationName,
-    pictureLink: document.getElementById("pictureLink").value,
-    comments: document.getElementById("comments").value,
-    time: formatDateTime(new Date()),
-    status: "OPEN",
-    moreInfo: false,
-    delete: false,
-    marker: null,
-    locationNameFromAPI: null,
-  };
+    // Do not allow submissions if required fields are empty;
+    if (report.name === "" && report.phone === "" && report.location === "") {
+      return;
+    }
+    // Process the report
+    reports.push(report);
+    try {
+      await creating_long_lat(locationName, report.type, reports.length - 1);
+      displayReports();
+      saveReportsToLocalStorage();
+    } catch (error) {
+      console.error("Error processing report:", error);
+      reports.pop(); // Remove the report if there was an error
+    }
 
-  // Process the report
-  reports.push(report);
-  try {
-    await creating_long_lat(locationName, report.type, reports.length - 1);
-    displayReports();
-    saveReportsToLocalStorage();
-  } catch (error) {
-    console.error("Error processing report:", error);
-    reports.pop(); // Remove the report if there was an error
+    // Reset form
+    event.target.reset();
+    const paragraphs = document.querySelectorAll("p");
+    paragraphs.forEach((p) => p.remove());
+
+    return report;
   }
-
-  // Reset form
-  event.target.reset();
-
-  return report;
 }
 
 // Attach the event listener
@@ -113,6 +159,257 @@ document
   .getElementById("emergencyForm")
   .addEventListener("submit", handleFormSubmission);
 
+// Validate fields and show output: creates relevant elements to show error messages or input validation
+function showValidation(isOk, notOk, notOkMsg, element, id, requiredNotMet) {
+  // Extract and format field title from ID
+  let fieldTitle =
+    id.replace("Validate", "").charAt(0).toUpperCase() +
+    id.replace("Validate", "").slice(1);
+  // Locate or create validation message element
+  let validationMsg = document.getElementById(id);
+  if (!validationMsg) {
+    validationMsg = document.createElement("p");
+    validationMsg.id = id;
+    element.parentNode.insertBefore(validationMsg, element.nextSibling);
+  }
+  // Validation logic
+  if (requiredNotMet) {
+    isOk = false;
+    notOk = true;
+    // Handle when field is empty: shows yellow box
+    element.className = "form-control border border-warning";
+    element.classList.remove("is-valid");
+    element.classList.add("is-invalid");
+    validationMsg.className = "alert alert-warning";
+    validationMsg.innerHTML = `Validation Unsuccessful! ${fieldTitle} is a required field.`;
+  } else if (!isOk && notOk) {
+    // Handle when validation is unsuccessful: shows red box
+    element.className = "form-control border border-danger";
+    element.classList.remove("is-valid");
+    element.classList.add("is-invalid");
+    validationMsg.className = "alert alert-danger";
+    validationMsg.innerHTML = `Validation Unsuccessful!<br>${notOkMsg}`;
+  } else if (isOk && !notOk) {
+    // Handle when validation is successful: shows green box
+    element.className = "form-control border border-success";
+    element.classList.add("is-valid");
+    element.classList.remove("is-invalid");
+    validationMsg.className = "alert alert-success";
+    validationMsg.innerHTML = "Validation Successful!";
+  }
+}
+
+// Validating name in real-time
+document.getElementById("reporterName").addEventListener("input", function () {
+  const nameInput = this;
+  const nameValue = nameInput.value;
+  if (nameValue === "") {
+    // If name is empty
+    correctName = false;
+    incorrectName = false;
+    requiredName = true;
+    showValidation(
+      correctName,
+      incorrectName,
+      "",
+      nameInput,
+      "nameValidate",
+      requiredName
+    );
+  } else if (validateName(nameValue)) {
+    // If name is valid
+    correctName = true;
+    incorrectName = false;
+    requiredName = false;
+    showValidation(
+      correctName,
+      incorrectName,
+      "",
+      nameInput,
+      "nameValidate",
+      requiredName
+    );
+  }
+  // only invalid case is if the field is empty which is already implemented above in this function
+});
+
+// Validating phone number in real-time
+document.getElementById("reporterPhone").addEventListener("input", function () {
+  const phoneInput = this;
+  const phoneValue = phoneInput.value;
+  if (phoneValue === "") {
+    // If phone number is empty
+    correctPhone = false;
+    incorrectPhone = false;
+    requiredPhone = true;
+    showValidation(
+      correctPhone,
+      incorrectPhone,
+      "",
+      phoneInput,
+      "phoneValidate",
+      requiredPhone
+    );
+  } else if (validatePhoneNumber(phoneValue)) {
+    // If phone number is valid
+    correctPhone = true;
+    incorrectPhone = false;
+    requiredPhone = false;
+    showValidation(
+      correctPhone,
+      incorrectPhone,
+      "",
+      phoneInput,
+      "phoneValidate",
+      requiredPhone
+    );
+  } else {
+    // If phone number is invalid
+    correctPhone = false;
+    incorrectPhone = true;
+    requiredPhone = false;
+    showValidation(
+      correctPhone,
+      incorrectPhone,
+      "Valid phone number formats: (123) 456-7890, 123-456-7890, 123.456.7890, 1234567890, +1 123 456 7890",
+      phoneInput,
+      "phoneValidate",
+      requiredPhone
+    );
+  }
+});
+
+// Validating picture link in real-time
+document.getElementById("pictureLink").addEventListener("input", function () {
+  const pictureLinkInput = this;
+  const pictureLink = pictureLinkInput.value;
+  if (pictureLink === "") {
+    correctPictureLink = false;
+    incorrectPictureLink = false;
+    console.log(pictureLink);
+    pictureLinkInput.classList.remove("is-valid", "is-invalid");
+    pictureLinkInput.className = "form-control border border-primary";
+    document.getElementById("pictureLinkValidate").remove();
+  }
+  // Not checking empty since this field is not required
+  if (validatePictureLink(pictureLink)) {
+    // If picture link is valid
+    correctPictureLink = true;
+    incorrectPictureLink = false;
+    requiredPictureLink = false;
+    showValidation(
+      correctPictureLink,
+      incorrectPictureLink,
+      "",
+      pictureLinkInput,
+      "pictureLinkValidate",
+      requiredPictureLink
+    );
+  } else if (validatePictureLink(pictureLink) === false && pictureLink !== "") {
+    // If picture link is invalid
+    correctPictureLink = false;
+    incorrectPictureLink = true;
+    requiredPictureLink = false;
+    showValidation(
+      correctPictureLink,
+      incorrectPictureLink,
+      "Valid pictureLink number formats: .jpg, .png, .gif, etc.",
+      pictureLinkInput,
+      "pictureLinkValidate",
+      requiredPictureLink
+    );
+  }
+});
+
+// Validating location in real-time
+document.getElementById("location").addEventListener("input", function () {
+  const locationInput = this;
+  var locationValue = locationInput.value;
+
+  // If location is empty, hide suggestions
+  if (locationValue.trim() === "") {
+    document.getElementById("locationSuggestions").style.display = "none";
+    correctLocation = false;
+    incorrectLocation = false;
+    requiredLocation = true;
+    document.getElementById("locationValidate").remove();
+    showValidation(
+      correctLocation,
+      incorrectLocation,
+      "",
+      locationInput,
+      "locationValidate",
+      requiredLocation
+    );
+    return;
+  }
+
+  // Fetch location suggestions from OpenStreetMap API
+  fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      locationValue
+    )}&countrycodes=ca&limit=5`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      const suggestionsList = document.getElementById("locationSuggestions");
+      suggestionsList.innerHTML = ""; // Clear previous suggestions
+
+      // If there are suggestions, show them
+      if (data.length > 0) {
+        if (document.getElementById("locationValidate") != null) {
+          document.getElementById("locationValidate").remove();
+        }
+        suggestionsList.style.display = "block";
+        data.forEach((item) => {
+          const listItem = document.createElement("li");
+          listItem.classList.add("list-group-item");
+          listItem.textContent = item.display_name;
+          listItem.onmouseover = () => {
+            // locationInput.value = item.display_name;
+            listItem.classList.add("bg-primary", "text-white");
+            // You can store the selected location's lat/lng in the input
+            creating_long_lat(
+              item.display_name,
+              document.getElementById("emergencyType").value,
+              reports.length - 1
+            );
+          };
+          listItem.onmouseout = () => {
+            listItem.classList.remove("bg-primary", "text-white");
+            listItem.style.listStyle = "none";
+          };
+          listItem.onclick = () => {
+            locationInput.value = item.display_name;
+            locationValue = locationInput.value;
+            document.getElementById("locationSuggestions").style.display =
+              "none";
+            // If location is valid as per API
+            correctLocation = true;
+            incorrectLocation = false;
+            requiredLocation = false;
+            showValidation(
+              correctLocation,
+              incorrectLocation,
+              "",
+              locationInput,
+              "locationValidate",
+              requiredLocation
+            );
+          };
+          suggestionsList.appendChild(listItem);
+        });
+      } else {
+        suggestionsList.style.display = "none";
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching location suggestions:", error);
+      document.getElementById("locationSuggestions").style.display = "none";
+    });
+});
+
+// Getting coordinates from location input
 function creating_long_lat(locationName, type, reportIndex) {
   return new Promise((resolve, reject) => {
     const storedPosition = reports[reportIndex].markerPosition;
@@ -132,7 +429,6 @@ function creating_long_lat(locationName, type, reportIndex) {
         .then((response) => response.json())
         .then((data) => {
           if (data.length > 0) {
-            console.log(data);
             const latitude = parseFloat(data[0].lat);
             const longitude = parseFloat(data[0].lon);
             const locationNameFromAPI = data[0].name;
@@ -147,14 +443,23 @@ function creating_long_lat(locationName, type, reportIndex) {
             reports[reportIndex].markerPosition = geoMarker.getLatLng();
             resolve();
           } else {
-            alert(
-              "Location not found. Please check the spelling and try again."
+            correctLocation = false;
+            incorrectLocation = true;
+            requiredLocation = false;
+            showValidation(
+              correctLocation,
+              incorrectLocation,
+              "Location not found. Please check the spelling and try again.",
+              document.getElementById("location"),
+              "locationValidate",
+              requiredLocation
             );
             reject("Location not found");
           }
         })
         .catch((error) => {
           console.error("Error fetching geocoding data:", error);
+          locationInvalid = true;
           reject(error);
         });
     }
@@ -162,11 +467,12 @@ function creating_long_lat(locationName, type, reportIndex) {
 }
 
 function initTable(headers) {
+  // Creates table with column names as values from headers array
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   headers.forEach((key) => {
     const th = document.createElement("th");
-    th.scope = "col";
+    th.scope = "col"; // bootstrap
     if (key === "moreInfo" || key === "delete") {
       th.textContent = "";
     } else if (key !== "marker" && key !== "locationNameFromAPI") {
@@ -190,10 +496,10 @@ function displayReports() {
     "delete",
   ];
   if (reports.length > 0) {
-    // const table = document.createElement("table");
+    // add headers
     reportList.appendChild(initTable(tableHeaders));
-
     const tbody = document.createElement("tbody");
+    // create table body
     reports.forEach((report, index) => {
       const reportDisplay = {
         location: report.locationNameFromAPI,
@@ -203,36 +509,44 @@ function displayReports() {
         moreInfo: report.moreInfo,
         delete: report.delete,
       };
-      console.log("Location:", reportDisplay.location);
+      // only include fields that are required as per demo image in project PDF
       const row = document.createElement("tr");
+      // For each key in reportDisplay, adding rows with respective value
       Object.entries(reportDisplay).forEach(([key, value]) => {
         const td = document.createElement("td");
         if (key === "delete" && reportDisplay.delete === false) {
+          // Add 'cross' delete symbol
           td.innerHTML = crossSymbol;
           td.style.cursor = "pointer";
           td.onclick = function () {
             deleteRow(index);
           };
         } else if (key === "moreInfo" && reportDisplay.moreInfo === false) {
+          // Add MORE INFO text
           const a = document.createElement("a");
           a.className = "badge badge-light";
           a.href = "#";
           a.textContent = "MORE INFO";
           a.onclick = function (e) {
             e.preventDefault();
+            // Calls tooltip function: For YASIR & PRIYANSH
             tooltip(report);
           };
           td.appendChild(a);
         } else {
+          // For other cases
           td.textContent = value;
         }
+        // Add cell data
         row.appendChild(td);
       });
+      // Add row
       tbody.appendChild(row);
     });
+    // Add table body
     reportList.appendChild(tbody);
-    // reportList.appendChild(table);
   } else {
+    // Handling edge case when no report is there
     reportList.textContent = "No reports available.";
   }
 }

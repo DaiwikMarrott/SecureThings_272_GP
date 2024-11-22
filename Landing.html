@@ -34,7 +34,7 @@
   <!-- Emergency Report Form -->
   <div class="container mt-5 pt-5">
     <h2 id="report-form">Report an Emergency</h2>
-    <form id="emergencyForm">
+    <form id="emergencyForm" novalidate>
       <div class="form-group">
         <label for="reporterName">Name</label>
         <!-- Made them required so without these we could not submit the form hence the (required) thing at the end -->
@@ -56,7 +56,10 @@
       </div>
       <div class="form-group">
         <label for="location">Location</label>
-        <input type="text" class="form-control" id="location" required>
+        <input type="search" class="form-control" id="location" required>
+        <ul id="locationSuggestions" class="list-group"
+          style="display: none; position: absolute; z-index: 1000; width: 100%;">
+        </ul>
       </div>
       <div class="form-group">
         <label for="pictureLink">Picture Link (optional)</label>
