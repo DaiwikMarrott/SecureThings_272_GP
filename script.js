@@ -11,6 +11,14 @@ let mapMarkers = [];
 let crossSymbol = "&#x274C;";
 let locationInvalid = false;
 
+// Initial passcode and its MD5 hash stored in local storage
+const initialPasscode = "admin123"; // Change this to your desired initial passcode
+const hashedPasscode = CryptoJS.MD5(initialPasscode).toString();
+if (!localStorage.getItem("hashedPasscode")) {
+  localStorage.setItem("hashedPasscode", hashedPasscode);
+}
+
+
 /* Helper functions */
 // Formatting Date Time
 function formatDateTime(date) {
@@ -303,84 +311,7 @@ function initTable(headers) {
   return thead;
 }
 
-function displayReports(reports) {
-  const reportList = document.getElementById("reports");
-  reportList.innerHTML = ""; // Clear previous content
-  const tableHeaders = [
-    "location",
-    "type",
-    "time",
-    "status",
-    "moreInfo",
-    "delete",
-  ];
-  if (reports && reports.length > 0) {
-    // add headers
-    reportList.appendChild(initTable(tableHeaders));
-    const tbody = document.createElement("tbody");
-    // create table body
-    reports.forEach((report, index) => {
-      const reportDisplay = {
-        location: report.locationNameFromAPI,
-        type: report.type,
-        time: report.time,
-        status: report.status,
-        moreInfo: report.moreInfo,
-        delete: report.delete,
-      };
-      // only include fields that are required as per demo image in project PDF
-      const row = document.createElement("tr");
-      row.style.cursor = "pointer";
-      row.onclick = function () {
-        showMarkerPopup(index);
-      };
-      // For each key in reportDisplay, adding rows with respective value
-      Object.entries(reportDisplay).forEach(([key, value]) => {
-        const td = document.createElement("td");
-        if (key === "delete" && reportDisplay.delete === false) {
-          // Add 'cross' delete symbol
-          td.innerHTML = crossSymbol;
-          td.style.cursor = "pointer";
-          td.onclick = function (e) {
-            e.stopPropagation();
-            deleteRow(index);
-          };
-        } else if (key === "moreInfo" && reportDisplay.moreInfo === false) {
-          // Add MORE INFO text
-          const a = document.createElement("a");
-          a.className = "badge badge-light";
-          a.href = "#";
-          a.textContent = "MORE INFO";
-          a.onclick = function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            // Calls tooltip function: For YASIR & PRIYANSH
-            tooltip(report);
-          };
-          td.appendChild(a);
-        } else {
-          // For other cases
-          td.textContent = value;
-        }
-        // Add cell data
-        row.appendChild(td);
-      });
-      // Add row
-      tbody.appendChild(row);
-    });
-    // Add table body
-    reportList.appendChild(tbody);
-    tableHeaders.forEach((header, index) => {
-      const th = reportList.querySelector(`th:nth-child(${index + 1})`);
-      th.style.cursor = "pointer";
-      th.addEventListener("click", () => sortTable(index));
-    });
-  } else if (!reports || reports.length === 0) {
-    // Handling edge case when no report is there
-    reportList.textContent = "No reports available.";
-    return;
-  }
-}
+  
 
 function updateSortIndicators(sortedColumnIndex) {
   const headers = document.querySelectorAll("#reports th");
@@ -502,3 +433,242 @@ function showMarkerPopup(index) {
     map.panTo(report.marker.getLatLng());
   }
 }
+
+
+
+
+function displayReports(reports) {
+    const reportList = document.getElementById("reports");
+    reportList.innerHTML = ""; // Clear previous content
+    const tableHeaders = ["location", "type", "time", "status", "moreInfo", "delete"];
+  
+    if (reports && reports.length > 0) {
+      // Add table headers
+      reportList.appendChild(initTable(tableHeaders));
+  
+      const tbody = document.createElement("tbody");
+  
+      reports.forEach((report, index) => {
+        const row = document.createElement("tr");
+        row.style.cursor = "pointer";
+        row.onclick = function () {
+          showMarkerPopup(index);
+        };
+  
+        Object.entries({
+          location: report.locationNameFromAPI,
+          type: report.type,
+          time: report.time,
+          status: report.status,
+          moreInfo: report.moreInfo,
+          delete: report.delete,
+        }).forEach(([key, value]) => {
+          const td = document.createElement("td");
+  
+          if (key === "delete") {
+            // Add the red cross delete button
+            td.innerHTML = crossSymbol;
+            td.style.cursor = "pointer";
+  
+            // Bind the deleteRow function to the delete button
+            td.addEventListener("click", function (e) {
+              e.stopPropagation(); // Prevent row click event from firing
+              deleteRow(index); // Call the deleteRow function
+            });
+          } else if (key === "moreInfo") {
+            // Add the "More Info" link
+            const a = document.createElement("a");
+            a.className = "badge badge-light";
+            a.href = "#";
+            a.textContent = "MORE INFO";
+            a.onclick = function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              showMoreInfo(index); // Call the function to show "More Info" container
+            };
+            td.appendChild(a);
+          } else {
+            // Add other data fields
+            td.textContent = value;
+          }
+  
+          row.appendChild(td);
+        });
+  
+        tbody.appendChild(row);
+      });
+  
+      reportList.appendChild(tbody);
+    } else {
+      reportList.textContent = "No reports available.";
+    }
+  }
+  
+  
+
+
+function deleteRow(index) {
+    // Prompt the user for the passcode
+    const userPasscode = prompt("Enter the passcode to delete this report:");
+    if (userPasscode === null) return; // User canceled the prompt
+  
+    // Retrieve the stored hashed passcode from localStorage
+    const storedHashedPasscode = localStorage.getItem("hashedPasscode");
+    const userHashedPasscode = CryptoJS.MD5(userPasscode).toString();
+  
+    // Validate the passcode
+    if (userHashedPasscode === storedHashedPasscode) {
+      // Remove the marker from the map
+      if (reports[index].marker) {
+        map.removeLayer(reports[index].marker);
+      }
+  
+      // Remove the report from the array
+      reports.splice(index, 1);
+  
+      // Update localStorage
+      saveReportsToLocalStorage();
+  
+      // Refresh the reports display
+      filterReportsByMapBounds();
+  
+      // Notify the user
+      alert("Report deleted successfully!");
+    } else {
+      alert("Invalid passcode. You are not authorized to delete this report.");
+    }
+  }
+  
+
+
+  function handleChangeStatus(index) {
+    const userPasscode = prompt("Enter the passcode to change the status:");
+    if (userPasscode === null) return; // User canceled the prompt
+  
+    const storedHashedPasscode = localStorage.getItem("hashedPasscode");
+    const userHashedPasscode = CryptoJS.MD5(userPasscode).toString();
+  
+    if (userHashedPasscode === storedHashedPasscode) {
+      const statusChangeContainer = document.getElementById("statusChange");
+      const currentStatus = reports[index].status;
+  
+      // Create the dropdown with three status options
+      const dropdownHTML = `
+        <select id="statusSelect" class="form-control form-control-sm mb-2">
+          <option value="OPEN" ${currentStatus === "OPEN" ? "selected" : ""}>OPEN</option>
+          <option value="IN-PROGRESS" ${currentStatus === "In-Progress" ? "selected" : ""}>IN-PROGRESS</option>
+          <option value="RESOLVED" ${currentStatus === "Resolved" ? "selected" : ""}>RESOLVED</option>
+        </select>
+      `;
+  
+      // Add Save and Cancel buttons
+      const actionButtonsHTML = `
+        <button id="saveStatus" class="btn btn-success btn-sm">Save</button>
+        <button id="cancelStatus" class="btn btn-danger btn-sm ml-2">Cancel</button>
+      `;
+  
+      // Update the container's HTML
+      statusChangeContainer.innerHTML = dropdownHTML + actionButtonsHTML;
+  
+      // Save button functionality
+      document.getElementById("saveStatus").onclick = function () {
+        const newStatus = document.getElementById("statusSelect").value; // Get the selected status
+  
+        // Update the report status
+        reports[index].status = newStatus;
+  
+        // Update localStorage and refresh UI
+        saveReportsToLocalStorage();
+        filterReportsByMapBounds(); // Refresh the table to show updated status
+  
+        // Revert the container to show updated status with the "Change" link
+        statusChangeContainer.innerHTML = `
+          Status: ${newStatus} 
+          <a href="#" id="changeStatus" class="badge badge-warning" style="cursor: pointer;">Change</a>
+        `;
+  
+        // Attach event listener to the new "Change" link
+        document.getElementById("changeStatus").onclick = function (e) {
+          e.preventDefault();
+          handleChangeStatus(index);
+        };
+      };
+  
+      // Cancel button functionality
+      document.getElementById("cancelStatus").onclick = function () {
+        // Revert back to the original status with the "Change" link
+        statusChangeContainer.innerHTML = `
+          Status: ${currentStatus} 
+          <a href="#" id="changeStatus" class="badge badge-warning" style="cursor: pointer;">Change</a>
+        `;
+  
+        // Attach event listener to the new "Change" link
+        document.getElementById("changeStatus").onclick = function (e) {
+          e.preventDefault();
+          handleChangeStatus(index);
+        };
+      };
+    } else {
+      alert("Invalid passcode. You are not authorized to change the status.");
+    }
+  }
+  
+  
+  
+
+
+  function showMoreInfo(index) {
+    const report = reports[index];
+  
+    // Debugging: Check if the report exists
+    console.log("Selected Report: ", report);
+  
+    // Get the elements
+    const reportImageElement = document.getElementById("reportImage");
+    const reportDetailsElement = document.getElementById("reportDetails");
+    const reportStatusElement = document.getElementById("reportStatus");
+    const changeStatusLink = document.getElementById("changeStatus");
+  
+    // Check if elements exist
+    if (!reportImageElement || !reportDetailsElement || !reportStatusElement || !changeStatusLink) {
+      console.error("Missing one or more elements for the More Info container.");
+      return;
+    }
+  
+    // Set the image (or use a placeholder if no image link is provided)
+    const imageUrl = report.pictureLink || "image.jpg"; // Default image if none is provided
+    reportImageElement.src = imageUrl;
+  
+    // Set the report details
+    const details = `
+        <strong>Type:</strong> ${report.type} <br>
+        <strong>Location:</strong> ${report.location} <br>
+        <strong>Reported by:</strong> ${report.name} (${report.phone}) <br>
+        <strong>Time:</strong> ${report.time} <br>
+        <strong>Comments:</strong> ${report.comments || "No additional comments"}
+      `;
+    reportDetailsElement.innerHTML = details;
+  
+    // Set the current status
+    reportStatusElement.textContent = report.status;
+  
+    // Add the event listener for the "Change" link
+    changeStatusLink.onclick = function (e) {
+      e.preventDefault();
+      handleChangeStatus(index);
+    };
+  
+    // Show the container
+    const container = document.getElementById("moreInfoContainer");
+    if (container) {
+      container.style.display = "block";
+  
+      // Scroll to the container (optional)
+      container.scrollIntoView({ behavior: "smooth" });
+    } else {
+      console.error("More Info container is missing in the HTML.");
+    }
+  }
+  
+  
+  

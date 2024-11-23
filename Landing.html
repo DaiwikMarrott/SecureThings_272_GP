@@ -75,11 +75,27 @@
   <div class="container mt-5">
     <h2 id="map">Emergency Map</h2>
     <div id="mapid" style="height: 400px;"></div>
+  
+    <!-- More Info Container -->
+    <div id="moreInfoContainer" class="container mt-4" style="display: none;">
+      <div class="card">
+        <div class="card-body text-center">
+          <img id="reportImage" src="" alt="Report Image" class="img-fluid mb-3" style="max-width: 50%; height: 50%;">
+          <p id="reportDetails" class="text-left"></p>
+          <p id="statusChange">
+            Status: <span id="reportStatus"></span> 
+            <a href="#" id="changeStatus" class="badge badge-warning" style="cursor: pointer;">Change</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  
     <div id="emergencyList" class="mt-3">
       <h3>Emergency Reports</h3>
       <table id="reports" class="table"></table>
     </div>
   </div>
+  
 
   <!-- The hashing for the password generation has to be also done which i also do not know how to do -->
   <!-- lastly we have to have 1 password or each operator has to have a unique password ?? -->
