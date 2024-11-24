@@ -1,77 +1,76 @@
 /* First styling attempt without the bootstrap inbuilt styling bros */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    overflow-x: hidden;
-  }
-  
-  /* Navbar styling */
-  .navbar {
-    background-color: #b5121b; /* SFU Red colour as far as i could guess*/
-  }
-  .navbar-brand,
-  .nav-link {
-    color: #fff !important;
-  }
-  .nav-link:hover {
-    background-color: #800d14; /* Darker red for hover so that there is some difference */
-    color: white !important;
-    transition: background-color 0.3s ease;
-  }
-  
-  /* basic form styling */
-  .container h2 {
-    color: #b5121b;
-  }
-  .btn-primary {
-    background-color: #b5121b;
-    border-color: #b5121b;
-  }
-  .btn-primary:hover {
-    background-color: #800d14;
-  }
-  
-  #reporterPhone:focus,
-  #reporterName:focus,
-  #location:focus,
-  #pictureLink:focus {
-    box-shadow: none;
-  }
-  
-  #reporterPhone:focus.is-valid,
-  #reporterName:focus.is-valid,
-  #location:focus.is-valid,
-  #pictureLink:focus.is-valid {
-    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-  }
-  
-  #reporterPhone:focus.is-invalid,
-  #reporterName:focus.is-invalid,
-  #location:focus.is-invalid,
-  #pictureLink:focus.is-invalid {
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-  }
-  
-  /* Map styling */
-  #mapid {
-    border: 2px solid #b5121b;
-    border-radius: 5px;
-  }
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  overflow-x: hidden;
+}
+
+/* Navbar styling */
+.navbar {
+  background-color: #b5121b; /* SFU Red colour as far as i could guess*/
+}
+.navbar-brand,
+.nav-link {
+  color: #fff !important;
+}
+.nav-link:hover {
+  background-color: #800d14; /* Darker red for hover so that there is some difference */
+  color: white !important;
+  transition: background-color 0.3s ease;
+}
+
+/* basic form styling */
+.container h2 {
+  color: #b5121b;
+}
+.btn-primary {
+  background-color: #b5121b;
+  border-color: #b5121b;
+}
+.btn-primary:hover {
+  background-color: #800d14;
+}
+
+#reporterPhone:focus,
+#reporterName:focus,
+#location:focus,
+#pictureLink:focus {
+  box-shadow: none;
+}
+
+#reporterPhone:focus.is-valid,
+#reporterName:focus.is-valid,
+#location:focus.is-valid,
+#pictureLink:focus.is-valid {
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+#reporterPhone:focus.is-invalid,
+#reporterName:focus.is-invalid,
+#location:focus.is-invalid,
+#pictureLink:focus.is-invalid {
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Map styling */
+#mapid {
+  border: 2px solid #b5121b;
+  border-radius: 5px;
+}
 
 
 
-  #moreInfoContainer {
-    width: 60%; /* Adjust as per your requirement */
-  }
-  
-  #moreInfoContainer img {
-    max-width: 100%;
-    height: auto;
-  }
-  
+#moreInfoContainer {
+  width: 60%; /* Adjust as per your requirement */
+}
+
+#moreInfoContainer img {
+  max-width: 100%;
+  height: auto;
+}
 
 
 
 
-  
-  
+
+

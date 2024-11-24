@@ -556,8 +556,8 @@ function deleteRow(index) {
       const dropdownHTML = `
         <select id="statusSelect" class="form-control form-control-sm mb-2">
           <option value="OPEN" ${currentStatus === "OPEN" ? "selected" : ""}>OPEN</option>
-          <option value="IN-PROGRESS" ${currentStatus === "In-Progress" ? "selected" : ""}>IN-PROGRESS</option>
-          <option value="RESOLVED" ${currentStatus === "Resolved" ? "selected" : ""}>RESOLVED</option>
+          <option value="IN-PROGRESS" ${currentStatus === "IN-PROGRESS" ? "selected" : ""}>IN-PROGRESS</option>
+          <option value="RESOLVED" ${currentStatus === "RESOLVED" ? "selected" : ""}>RESOLVED</option>
         </select>
       `;
   
@@ -580,6 +580,9 @@ function deleteRow(index) {
         // Update localStorage and refresh UI
         saveReportsToLocalStorage();
         filterReportsByMapBounds(); // Refresh the table to show updated status
+  
+        // Show success alert
+        alert("The status has been changed successfully!");
   
         // Revert the container to show updated status with the "Change" link
         statusChangeContainer.innerHTML = `
@@ -620,55 +623,68 @@ function deleteRow(index) {
   function showMoreInfo(index) {
     const report = reports[index];
   
-    // Debugging: Check if the report exists
+    // Debugging: Ensure the correct report is being processed
     console.log("Selected Report: ", report);
   
-    // Get the elements
+    // Get the "More Info" container and its elements
+    const container = document.getElementById("moreInfoContainer");
     const reportImageElement = document.getElementById("reportImage");
     const reportDetailsElement = document.getElementById("reportDetails");
     const reportStatusElement = document.getElementById("reportStatus");
-    const changeStatusLink = document.getElementById("changeStatus");
+    const statusChangeContainer = document.getElementById("statusChange");
   
-    // Check if elements exist
-    if (!reportImageElement || !reportDetailsElement || !reportStatusElement || !changeStatusLink) {
+    // Ensure all elements exist
+    if (!container || !reportImageElement || !reportDetailsElement || !statusChangeContainer) {
       console.error("Missing one or more elements for the More Info container.");
       return;
     }
   
+    // Reset the container content before updating
+    reportImageElement.src = ""; // Reset image
+    reportDetailsElement.innerHTML = ""; // Clear details
+    statusChangeContainer.innerHTML = ""; // Clear status change
+  
     // Set the image (or use a placeholder if no image link is provided)
-    const imageUrl = report.pictureLink || "image.jpg"; // Default image if none is provided
+    const imageUrl = report.pictureLink || "image.jpg"; // Default image
     reportImageElement.src = imageUrl;
   
     // Set the report details
-    const details = `
-        <strong>Type:</strong> ${report.type} <br>
-        <strong>Location:</strong> ${report.location} <br>
-        <strong>Reported by:</strong> ${report.name} (${report.phone}) <br>
-        <strong>Time:</strong> ${report.time} <br>
-        <strong>Comments:</strong> ${report.comments || "No additional comments"}
-      `;
-    reportDetailsElement.innerHTML = details;
+    reportDetailsElement.innerHTML = `
+      <strong>Type:</strong> ${report.type} <br>
+      <strong>Location:</strong> ${report.location} <br>
+      <strong>Reported by:</strong> ${report.name} (${report.phone}) <br>
+      <strong>Time:</strong> ${report.time} <br>
+      <strong>Comments:</strong> ${report.comments || "No additional comments"}
+    `;
   
-    // Set the current status
-    reportStatusElement.textContent = report.status;
-  
-    // Add the event listener for the "Change" link
-    changeStatusLink.onclick = function (e) {
+    // Set the current status and attach the "Change" functionality dynamically
+    statusChangeContainer.innerHTML = `
+      Status: <span id="reportStatus">${report.status}</span>
+      <a href="#" id="changeStatus" class="badge badge-warning" style="cursor: pointer;">Change</a>
+    `;
+    document.getElementById("changeStatus").onclick = function (e) {
       e.preventDefault();
       handleChangeStatus(index);
     };
   
-    // Show the container
-    const container = document.getElementById("moreInfoContainer");
-    if (container) {
-      container.style.display = "block";
-  
-      // Scroll to the container (optional)
-      container.scrollIntoView({ behavior: "smooth" });
-    } else {
-      console.error("More Info container is missing in the HTML.");
+    // Add a "Close" button dynamically if it doesn't exist
+    let closeButton = document.getElementById("closeContainer");
+    if (!closeButton) {
+      closeButton = document.createElement("button");
+      closeButton.id = "closeContainer";
+      closeButton.className = "btn btn-secondary btn-sm mt-3";
+      closeButton.textContent = "Close";
+      closeButton.onclick = function () {
+        container.style.display = "none";
+        document.getElementById("emergencyList").scrollIntoView({ behavior: "smooth" });
+      };
+      container.querySelector(".card-body").appendChild(closeButton);
     }
+  
+    // Make the "More Info" container visible
+    container.style.display = "block";
+  
+    // Scroll to the container (optional)
+    container.scrollIntoView({ behavior: "smooth" });
   }
-  
-  
   
