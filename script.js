@@ -46,88 +46,88 @@ function toTitleCase(str) {
 }
 
 // Validation functions
-function validateInput(value, type) {
-  const validations = {
-    phone: {
-      regex: /^(\+1|1)?[-.\s]?\(?[2-9]\d{2}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-      errorMsg:
-        "Valid phone number formats: (123) 456-7890, 123-456-7890, 123.456.7890, 1234567890, +1 123 456 7890",
-    },
-    name: {
-      validate: (name) => name.trim() !== "",
-      errorMsg: "Name is required",
-    },
-    pictureLink: {
-      regex:
-        /^(https?:\/\/)([\w\-]+(\.[\w\-]+)+)(:[0-9]+)?(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/,
-      fileExtension: /\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i,
-      errorMsg: "Valid picture link formats: .jpg, .png, .gif, etc.",
-    },
-  };
-
-  const validation = validations[type];
-  if (!validation)
-    return { isValid: false, errorMsg: "Unknown validation type" };
-
-  if (validation.regex) {
-    return {
-      isValid:
-        validation.regex.test(value) &&
-        (type !== "pictureLink" || validation.fileExtension.test(value)),
-      errorMsg: validation.errorMsg,
+function validateInput(value, type, callback) {
+    const validations = {
+      phone: {
+        regex: /^(\+1|1)?[-.\s]?\(?[2-9]\d{2}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+        errorMsg:
+          "Valid phone number formats: (123) 456-7890, 123-456-7890, 123.456.7890, 1234567890, +1 123 456 7890",
+      },
+      name: {
+        validate: (name) => name.trim() !== "",
+        errorMsg: "Name is required",
+      },
+      location: {
+        validate: (loc) => loc.trim() !== "",
+        errorMsg: "Location is required",
+      },
+      pictureLink: {
+        regex:
+          /^(https?:\/\/)([\w\-]+(\.[\w\-]+)+)(:[0-9]+)?(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/,
+        errorMsg: "Invalid URL format for the picture link.",
+      },
     };
-  } else if (validation.validate) {
-    return {
-      isValid: validation.validate(value),
-      errorMsg: validation.errorMsg,
-    };
+  
+    const validation = validations[type];
+    if (!validation)
+      return callback({ isValid: false, errorMsg: "Unknown validation type" });
+  
+    if (validation.regex) {
+      const matchesFormat = validation.regex.test(value);
+  
+      if (type === "pictureLink" && matchesFormat) {
+        // Use checkImage to validate the URL
+        checkImage(value, (isValid) => {
+          if (isValid) {
+            callback({ isValid: true, errorMsg: "" });
+          } else {
+            callback({
+              isValid: false,
+              errorMsg:
+                "The URL is either invalid or does not point to an accessible image.",
+            });
+          }
+        });
+      } else if (!matchesFormat) {
+        callback({ isValid: false, errorMsg: validation.errorMsg });
+      } else {
+        callback({ isValid: true, errorMsg: "" });
+      }
+    } else if (validation.validate) {
+      callback({
+        isValid: validation.validate(value),
+        errorMsg: validation.errorMsg,
+      });
+    } else {
+      callback({ isValid: true, errorMsg: "" });
+    }
   }
-}
+  
+  
 
 // Display validation message
 function showValidation(element, isValid, errorMsg) {
-  const fieldTitle = element.id.charAt(0).toUpperCase() + element.id.slice(1);
-  let validationMsg = document.getElementById(`${element.id}Validate`);
-
-  if (!validationMsg) {
-    validationMsg = document.createElement("p");
-    validationMsg.id = `${element.id}Validate`;
-    element.parentNode.insertBefore(validationMsg, element.nextSibling);
+    const fieldTitle = element.id.charAt(0).toUpperCase() + element.id.slice(1);
+    let validationMsg = document.getElementById(`${element.id}Validate`);
+  
+    if (!validationMsg) {
+      validationMsg = document.createElement("p");
+      validationMsg.id = `${element.id}Validate`;
+      element.parentNode.insertBefore(validationMsg, element.nextSibling);
+    }
+  
+    element.className = `form-control border ${
+      isValid ? "border-success" : "border-danger"
+    }`;
+    element.classList.toggle("is-valid", isValid);
+    element.classList.toggle("is-invalid", !isValid);
+  
+    validationMsg.className = `alert alert-${isValid ? "success" : "danger"}`;
+    validationMsg.innerHTML = isValid
+      ? "Validation Successful!"
+      : `Validation Unsuccessful!<br>${errorMsg}`;
   }
-
-  element.className = `form-control border ${
-    isValid ? "border-success" : "border-danger"
-  }`;
-  element.classList.toggle("is-valid", isValid);
-  element.classList.toggle("is-invalid", !isValid);
-
-  validationMsg.className = `alert alert-${isValid ? "success" : "danger"}`;
-  validationMsg.innerHTML = isValid
-    ? "Validation Successful!"
-    : `Validation Unsuccessful!<br>${errorMsg}`;
-}
-
-["reporterName", "reporterPhone", "pictureLink"].forEach((fieldId) => {
-  document.getElementById(fieldId).addEventListener("input", function () {
-    const { isValid, errorMsg } = validateInput(
-      this.value,
-      fieldId.replace("reporter", "").toLowerCase()
-    );
-    showValidation(this, isValid, errorMsg);
-  });
-});
-
-document.getElementById("location").addEventListener("input", function () {
-  const locationInput = this;
-  const locationValue = locationInput.value.trim();
-
-  if (locationValue === "") {
-    showValidation(locationInput, false, "Location is required");
-    return;
-  } else {
-    showValidation(locationInput, true, "");
-  }
-});
+  
 
 // Enabling Local Storage so that content does not vanish on page reload
 function saveReportsToLocalStorage() {
@@ -165,44 +165,54 @@ async function loadReportsFromLocalStorage() {
 
 // Form submission handler
 async function handleFormSubmission(event) {
-  event.preventDefault();
-  const locationName = toTitleCase(document.getElementById("location").value);
-
-  // Create report object
-  const report = {
-    name: document.getElementById("reporterName").value,
-    phone: document.getElementById("reporterPhone").value,
-    type: document.getElementById("emergencyType").value,
-    location: locationName,
-    pictureLink: document.getElementById("pictureLink").value,
-    comments: document.getElementById("comments").value,
-    time: formatDateTime(new Date()),
-    status: "OPEN",
-    moreInfo: false,
-    delete: false,
-    marker: null,
-    locationNameFromAPI: null,
-  };
-
-  // Do not allow submissions if required fields are empty;
-  if (report.name === "" && report.phone === "" && report.location === "") {
-    return;
+    event.preventDefault();
+    const locationName = toTitleCase(document.getElementById("location").value);
+  
+    // Create report object
+    const report = {
+      name: document.getElementById("reporterName").value,
+      phone: document.getElementById("reporterPhone").value,
+      type: document.getElementById("emergencyType").value,
+      location: locationName,
+      pictureLink: document.getElementById("pictureLink").value,
+      comments: document.getElementById("comments").value,
+      time: formatDateTime(new Date()),
+      status: "OPEN",
+      moreInfo: false,
+      delete: false,
+      marker: null,
+      locationNameFromAPI: null,
+    };
+  
+    // Do not allow submissions if required fields are empty;
+    if (report.name === "" && report.phone === "" && report.location === "") {
+      return;
+    }
+  
+    // Process the report
+    reports.push(report);
+    try {
+      await creating_long_lat(locationName, report.type, reports.length - 1);
+      filterReportsByMapBounds();
+      saveReportsToLocalStorage();
+  
+      // Reset the form
+      event.target.reset();
+  
+      // Hide the "More Info" container if visible
+      const container = document.getElementById("moreInfoContainer");
+      if (container) {
+        container.style.display = "none"; // Hide the container
+      }
+  
+      // Scroll to the table of reports
+      document.getElementById("emergencyList").scrollIntoView({ behavior: "smooth" });
+    } catch (error) {
+      console.error("Error processing report:", error);
+      reports.pop(); // Remove the report if there was an error
+    }
   }
-  // Process the report
-  reports.push(report);
-  try {
-    await creating_long_lat(locationName, report.type, reports.length - 1);
-    filterReportsByMapBounds();
-    saveReportsToLocalStorage();
-  } catch (error) {
-    console.error("Error processing report:", error);
-    reports.pop(); // Remove the report if there was an error
-  }
-
-  // Reset form
-  event.target.reset();
-  return report;
-}
+  
 
 function resetForm() {
   // Reset the form
@@ -237,17 +247,7 @@ document.getElementById("emergencyForm").addEventListener("reset", resetForm);
 
 // Getting coordinates from location input
 function creating_long_lat(locationName, type, reportIndex) {
-  return new Promise((resolve, reject) => {
-    const storedPosition = reports[reportIndex].markerPosition;
-    if (storedPosition) {
-      // PRIYANSH & YASIR make changes here for creating html element
-      let geoMarker = L.marker([storedPosition.lat, storedPosition.lng])
-        .addTo(map)
-        .bindPopup(`<strong>${locationName}</strong> <br> Type: ${type}`)
-        .openPopup();
-      reports[reportIndex].marker = geoMarker;
-      resolve();
-    } else {
+    return new Promise((resolve, reject) => {
       fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
           locationName
@@ -259,39 +259,38 @@ function creating_long_lat(locationName, type, reportIndex) {
             const latitude = parseFloat(data[0].lat);
             const longitude = parseFloat(data[0].lon);
             const locationNameFromAPI = data[0].name;
+  
             let geoMarker = L.marker([latitude, longitude])
               .addTo(map)
-              .bindPopup(`<strong>${locationName}</strong> <br> Type: ${type}`)
+              .bindPopup(`<strong>${locationNameFromAPI}</strong> <br> Type: ${type}`)
               .openPopup();
-
+  
             reports[reportIndex].marker = geoMarker;
             reports[reportIndex].location = locationName;
             reports[reportIndex].locationNameFromAPI = locationNameFromAPI;
             reports[reportIndex].markerPosition = geoMarker.getLatLng();
             resolve();
           } else {
-            correctLocation = false;
-            incorrectLocation = true;
-            requiredLocation = false;
             showValidation(
-              correctLocation,
-              incorrectLocation,
-              "Location not found. Please check the spelling and try again.",
               document.getElementById("location"),
-              "locationValidate",
-              requiredLocation
+              false,
+              "Location not found. Please check the spelling and try again."
             );
             reject("Location not found");
           }
         })
         .catch((error) => {
           console.error("Error fetching geocoding data:", error);
-          locationInvalid = true;
+          showValidation(
+            document.getElementById("location"),
+            false,
+            "Error validating location. Try again."
+          );
           reject(error);
         });
-    }
-  });
-}
+    });
+  }
+  
 
 function initTable(headers) {
   // Creates table with column names as values from headers array
@@ -456,6 +455,7 @@ function displayReports(reports) {
         };
   
         Object.entries({
+          // Use user-entered location here
           location: report.locationNameFromAPI,
           type: report.type,
           time: report.time,
@@ -503,6 +503,7 @@ function displayReports(reports) {
       reportList.textContent = "No reports available.";
     }
   }
+  
   
   
 
@@ -623,33 +624,45 @@ function deleteRow(index) {
   function showMoreInfo(index) {
     const report = reports[index];
   
-    // Debugging: Ensure the correct report is being processed
-    console.log("Selected Report: ", report);
-  
-    // Get the "More Info" container and its elements
     const container = document.getElementById("moreInfoContainer");
     const reportImageElement = document.getElementById("reportImage");
     const reportDetailsElement = document.getElementById("reportDetails");
-    const reportStatusElement = document.getElementById("reportStatus");
     const statusChangeContainer = document.getElementById("statusChange");
   
-    // Ensure all elements exist
     if (!container || !reportImageElement || !reportDetailsElement || !statusChangeContainer) {
       console.error("Missing one or more elements for the More Info container.");
       return;
     }
   
-    // Reset the container content before updating
-    reportImageElement.src = ""; // Reset image
-    reportDetailsElement.innerHTML = ""; // Clear details
-    statusChangeContainer.innerHTML = ""; // Clear status change
+    // Reset container content
+    reportImageElement.src = "";
+    reportImageElement.alt = "";
+    reportDetailsElement.innerHTML = "";
+    statusChangeContainer.innerHTML = "";
   
-    // Set the image (or use a placeholder if no image link is provided)
-    const imageUrl = report.pictureLink || "image.jpg"; // Default image
-    reportImageElement.src = imageUrl;
+    // Handle image display
+    const imageUrl = report.pictureLink && report.pictureLink.trim() !== "" ? report.pictureLink : null;
+  
+    if (imageUrl) {
+      checkImage(imageUrl, function (isValid) {
+        if (isValid) {
+          reportImageElement.src = imageUrl;
+          reportImageElement.alt = "Report Image";
+          reportImageElement.style.display = "block";
+          reportImageElement.classList.add("center-image"); // Add centering class
+          document.getElementById("noImageMessage")?.remove(); // Remove the "No image" message if it exists
+        } else {
+          reportImageElement.style.display = "none";
+          showNoImageMessage(reportDetailsElement); // Show the "No image found" message
+        }
+      });
+    } else {
+      reportImageElement.style.display = "none";
+      showNoImageMessage(reportDetailsElement); // Show the "No image found" message
+    }
   
     // Set the report details
-    reportDetailsElement.innerHTML = `
+    reportDetailsElement.innerHTML += `
       <strong>Type:</strong> ${report.type} <br>
       <strong>Location:</strong> ${report.location} <br>
       <strong>Reported by:</strong> ${report.name} (${report.phone}) <br>
@@ -657,7 +670,7 @@ function deleteRow(index) {
       <strong>Comments:</strong> ${report.comments || "No additional comments"}
     `;
   
-    // Set the current status and attach the "Change" functionality dynamically
+    // Status and Change button
     statusChangeContainer.innerHTML = `
       Status: <span id="reportStatus">${report.status}</span>
       <a href="#" id="changeStatus" class="badge badge-warning" style="cursor: pointer;">Change</a>
@@ -667,7 +680,7 @@ function deleteRow(index) {
       handleChangeStatus(index);
     };
   
-    // Add a "Close" button dynamically if it doesn't exist
+    // Close button logic
     let closeButton = document.getElementById("closeContainer");
     if (!closeButton) {
       closeButton = document.createElement("button");
@@ -681,10 +694,78 @@ function deleteRow(index) {
       container.querySelector(".card-body").appendChild(closeButton);
     }
   
-    // Make the "More Info" container visible
     container.style.display = "block";
-  
-    // Scroll to the container (optional)
     container.scrollIntoView({ behavior: "smooth" });
   }
+  
+  // Helper function to show the "No image found" message
+  function showNoImageMessage(parentElement) {
+    const noImageMessage = document.createElement("p");
+    noImageMessage.id = "noImageMessage";
+    noImageMessage.className = "text-center font-weight-bold center-message";
+    noImageMessage.textContent = "No image found for this report.";
+    parentElement.prepend(noImageMessage);
+  }
+  
+  
+  
+  
+
+  
+  /**
+ * Function to validate an image URL with a fallback mechanism.
+ * @param {string} url - The image URL to validate.
+ * @param {function} callback - A callback function to handle the result.
+ */
+  
+  
+  function checkImage(url, callback) {
+    const request = new XMLHttpRequest();
+    request.open("HEAD", url, true);
+    request.onload = function () {
+      const contentType = request.getResponseHeader("Content-Type");
+      if (request.status === 200 && contentType && contentType.startsWith("image")) {
+        callback(true);
+      } else {
+        validateWithImageObject(url, callback);
+      }
+    };
+    request.onerror = function () {
+      validateWithImageObject(url, callback);
+    };
+    request.send();
+  }
+  
+  function validateWithImageObject(url, callback) {
+    const img = new Image();
+    img.onload = function () {
+      callback(true);
+    };
+    img.onerror = function () {
+      callback(false);
+    };
+    img.src = url;
+  }
+
+
+  // Event listeners for input validation
+document.getElementById("reporterPhone").addEventListener("input", function () {
+    validateInput(this.value, "phone", ({ isValid, errorMsg }) =>
+      showValidation(this, isValid, errorMsg)
+    );
+  });
+  
+  document.getElementById("location").addEventListener("input", function () {
+    validateInput(this.value, "location", ({ isValid, errorMsg }) =>
+      showValidation(this, isValid, errorMsg)
+    );
+  });
+  
+  document.getElementById("pictureLink").addEventListener("input", function () {
+    validateInput(this.value, "pictureLink", ({ isValid, errorMsg }) =>
+      showValidation(this, isValid, errorMsg)
+    );
+  });
+  
+  
   

@@ -69,6 +69,21 @@ body {
   height: auto;
 }
 
+.center-image {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%; /* Optional: Ensures the image does not overflow */
+}
+
+
+.center-message {
+  text-align: center;
+  margin-top: 20px; /* Adjust as needed */
+}
+
+
+
 
 
 
