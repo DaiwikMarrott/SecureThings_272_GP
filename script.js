@@ -292,24 +292,36 @@ function creating_long_lat(locationName, type, reportIndex) {
   }
   
 
-function initTable(headers) {
-  // Creates table with column names as values from headers array
-  const thead = document.createElement("thead");
-  const headerRow = document.createElement("tr");
-  headers.forEach((key) => {
-    const th = document.createElement("th");
-    th.scope = "col"; // bootstrap
-    if (key === "moreInfo" || key === "delete") {
-      th.textContent = "";
-    } else if (key !== "marker" && key !== "locationNameFromAPI") {
-      th.textContent = key.charAt(0).toUpperCase() + key.slice(1);
-    }
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-  return thead;
-}
-
+  function initTable(headers) {
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+  
+    headers.forEach((key, index) => {
+      const th = document.createElement("th");
+      th.scope = "col"; // Accessibility for Bootstrap tables
+  
+      if (key === "moreInfo" || key === "delete") {
+        th.textContent = ""; // Skip non-sortable columns
+      } else {
+        th.textContent = key.charAt(0).toUpperCase() + key.slice(1); // Capitalize header name
+  
+        // Add a click event listener for sorting
+        th.style.cursor = "pointer"; // Indicate clickable headers
+        th.addEventListener("click", () => {
+          console.log(`Sorting column: ${key} (Index: ${index})`); // Debugging
+          sortTable(index); // Call sortTable with the correct column index
+        });
+      }
+  
+      headerRow.appendChild(th);
+    });
+  
+    thead.appendChild(headerRow);
+    return thead;
+  }
+  
+  
+  
   
 
 function updateSortIndicators(sortedColumnIndex) {
@@ -389,27 +401,7 @@ function filterReportsByMapBounds() {
   }
 }
 
-function deleteRow(index) {
-  // Remove the marker from the map
-  if (reports[index].marker) {
-    map.removeLayer(reports[index].marker);
-  }
 
-  // Remove the report from the array
-  reports.splice(index, 1);
-
-  // Update local storage
-  saveReportsToLocalStorage();
-
-  // Update the table display
-  filterReportsByMapBounds();
-
-  // If there are no reports left, update the table content
-  if (reports.length === 0) {
-    const reportList = document.getElementById("reports");
-    reportList.textContent = "No reports available.";
-  }
-}
 
 function tooltip(report) {
   // For Priyansh & Yasir
@@ -508,7 +500,7 @@ function displayReports(reports) {
   
 
 
-function deleteRow(index) {
+  function deleteRow(index) {
     // Prompt the user for the passcode
     const userPasscode = prompt("Enter the passcode to delete this report:");
     if (userPasscode === null) return; // User canceled the prompt
@@ -519,6 +511,18 @@ function deleteRow(index) {
   
     // Validate the passcode
     if (userHashedPasscode === storedHashedPasscode) {
+      // Hide "More Info" container if the currently viewed report is being deleted
+      const moreInfoContainer = document.getElementById("moreInfoContainer");
+      if (moreInfoContainer.style.display === "block") {
+        const currentReportDetails = document.getElementById("reportDetails").innerHTML;
+        const deletedReportLocation = reports[index].location;
+        
+        // Check if the currently displayed report matches the report being deleted
+        if (currentReportDetails.includes(deletedReportLocation)) {
+          moreInfoContainer.style.display = "none";
+        }
+      }
+  
       // Remove the marker from the map
       if (reports[index].marker) {
         map.removeLayer(reports[index].marker);
