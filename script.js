@@ -10,6 +10,9 @@ let sortState = {};
 let mapMarkers = [];
 let crossSymbol = "&#x274C;";
 let locationInvalid = false;
+let currentDisplayedReportIndex = null;
+let activeMarker = null;
+let filteredReports = [];
 
 // Initial passcode and its MD5 hash stored in local storage
 const initialPasscode = "admin123"; // Change this to your desired initial passcode
@@ -209,6 +212,7 @@ async function handleFormSubmission(event) {
     delete: false,
     marker: null,
     locationNameFromAPI: null,
+    clicked: false,
   };
 
   // Do not allow submissions if required fields are empty;
@@ -293,8 +297,65 @@ function creating_long_lat(locationName, type, reportIndex) {
             .addTo(map)
             .bindPopup(
               `<strong>${locationNameFromAPI}</strong> <br> Type: ${type}`
-            )
-            .openPopup();
+            );
+
+          // Attach custom property `reportIndex` to the marker
+          geoMarker.reportIndex = reportIndex;
+
+          geoMarker.on("click", function (e) {
+            e.originalEvent.stopPropagation();
+
+            // Close and reset the active marker if it exists and is different
+            if (activeMarker && activeMarker !== this) {
+              activeMarker.closePopup();
+              reports[activeMarker.reportIndex].clicked = false;
+
+              const container = document.getElementById("moreInfoContainer");
+              if (container) {
+                container.style.display = "none";
+              }
+            }
+
+            // Toggle the current marker's state
+            if (!reports[this.reportIndex].clicked) {
+              reports[this.reportIndex].clicked = true;
+              this.openPopup();
+              showMoreInfo(reportIndex, reports);
+              activeMarker = this; // Set the current marker as active
+            } else {
+              this.closePopup();
+              reports[this.reportIndex].clicked = false;
+
+              const container = document.getElementById("moreInfoContainer");
+              if (container) {
+                container.style.display = "none";
+              }
+
+              activeMarker = null; // Reset the active marker
+            }
+          });
+
+          geoMarker.on("popupopen", (e) => {
+            const popupElement = e.popup._container;
+
+            // Query the close button inside the popup
+            const closeButton = popupElement.querySelector(
+              ".leaflet-popup-close-button"
+            );
+
+            // Add an event listener to handle close button clicks
+            if (closeButton) {
+              closeButton.addEventListener("click", () => {
+                const container = document.getElementById("moreInfoContainer");
+                if (container) {
+                  reports[reportIndex].clicked = false;
+                  container.style.display = "none";
+                }
+
+                activeMarker = null; // Reset the active marker
+              });
+            }
+          });
 
           reports[reportIndex].marker = geoMarker;
           reports[reportIndex].location = locationName;
@@ -418,11 +479,29 @@ function filterReportsByMapBounds() {
     return false;
   });
 
+  // Check if the currently displayed "More Info" container should be hidden
+  const moreInfoContainer = document.getElementById("moreInfoContainer");
+  if (
+    moreInfoContainer.style.display === "block" &&
+    currentDisplayedReportIndex !== null
+  ) {
+    const currentReport = reports[currentDisplayedReportIndex];
+    const reportStillVisible = filteredReports.some(
+      (report) => report.location === currentReport.location
+    );
+
+    if (!reportStillVisible) {
+      currentReport.clicked = false;
+      moreInfoContainer.style.display = "none";
+      currentDisplayedReportIndex = null;
+    }
+  }
+
   if (filteredReports.length > 0) {
     displayReports(filteredReports);
   } else {
     const reportList = document.getElementById("reports");
-    reportList.innerHTML = ""; // Clear previous content
+    reportList.innerHTML = "";
     reportList.textContent = "No reports available in the current view.";
   }
 }
@@ -441,11 +520,12 @@ function tooltip(report) {
   filterReportsByMapBounds();
 })();
 
-function showMarkerPopup(index) {
-  const report = reports[index];
+function showMarkerPopup(index, reportsArray) {
+  // console.log("show marker function toggled");
+  const report = reportsArray[index];
   if (report.marker) {
     report.marker.openPopup();
-    map.panTo(report.marker.getLatLng());
+    // map.panTo(report.marker.getLatLng());
   }
 }
 
@@ -471,7 +551,10 @@ function displayReports(reports) {
       const row = document.createElement("tr");
       row.style.cursor = "pointer";
       row.onclick = function () {
-        showMarkerPopup(index);
+        // console.log("row has been clicked");
+        showMarkerPopup(index, reports);
+        reports[index].clicked = true;
+        showMoreInfo(index, reports);
       };
 
       Object.entries({
@@ -493,7 +576,7 @@ function displayReports(reports) {
           // Bind the deleteRow function to the delete button
           td.addEventListener("click", function (e) {
             e.stopPropagation(); // Prevent row click event from firing
-            deleteRow(index); // Call the deleteRow function
+            deleteRow(index, reports); // Call the deleteRow function
           });
         } else if (key === "moreInfo") {
           // Add the "More Info" link
@@ -503,9 +586,10 @@ function displayReports(reports) {
           a.textContent = "MORE INFO";
           a.onclick = function (e) {
             e.preventDefault();
-            console.log(index);
-            showMoreInfo(index); // Call the function to show "More Info" container
             e.stopPropagation();
+            // console.log(index);
+            reports[index].clicked = true;
+            showMoreInfo(index, reports); // Call the function to show "More Info" container
           };
           td.appendChild(a);
         } else {
@@ -546,6 +630,7 @@ function deleteRow(index) {
       // Check if the currently displayed report matches the report being deleted
       if (currentReportDetails.includes(deletedReportLocation)) {
         moreInfoContainer.style.display = "none";
+        reports[index].clicked = false;
       }
     }
 
@@ -606,7 +691,8 @@ function handleChangeStatus(index) {
     statusChangeContainer.innerHTML = dropdownHTML + actionButtonsHTML;
 
     // Save button functionality
-    document.getElementById("saveStatus").onclick = function () {
+    document.getElementById("saveStatus").onclick = function (e) {
+      e.stopPropagation();
       const newStatus = document.getElementById("statusSelect").value; // Get the selected status
 
       // Update the report status
@@ -628,13 +714,15 @@ function handleChangeStatus(index) {
       // Attach event listener to the new "Change" link
       document.getElementById("changeStatus").onclick = function (e) {
         e.preventDefault();
+        e.stopPropagation();
         handleChangeStatus(index);
       };
     };
 
     // Cancel button functionality
-    document.getElementById("cancelStatus").onclick = function () {
+    document.getElementById("cancelStatus").onclick = function (e) {
       // Revert back to the original status with the "Change" link
+      e.stopPropagation();
       statusChangeContainer.innerHTML = `
           Status: ${currentStatus} 
           <a href="#" id="changeStatus" class="badge badge-warning" style="cursor: pointer;">Change</a>
@@ -651,9 +739,11 @@ function handleChangeStatus(index) {
   }
 }
 
-function showMoreInfo(index) {
+function showMoreInfo(index, reports) {
+  // console.log("show more info toggled");
+  // reports[index].clicked = true;
   const report = reports[index];
-
+  currentDisplayedReportIndex = index;
   const container = document.getElementById("moreInfoContainer");
   const reportImageElement = document.getElementById("reportImage");
   const reportDetailsElement = document.getElementById("reportDetails");
@@ -709,7 +799,9 @@ function showMoreInfo(index) {
   reportDetailsElement.innerHTML += `
       <strong>Type:</strong> ${report.type} <br>
       <strong>Location:</strong> ${report.location} <br>
-      <strong>Reported by:</strong> ${report.name} (${report.phone}) <br>
+      <strong>Reported by:</strong> ${toTitleCase(report.name)} (${
+    report.phone
+  }) <br>
       <strong>Time:</strong> ${report.time} <br>
       <strong>Comments:</strong> ${report.comments || "No additional comments"}
     `;
@@ -731,7 +823,9 @@ function showMoreInfo(index) {
     closeButton.id = "closeContainer";
     closeButton.className = "btn btn-secondary btn-sm mt-3";
     closeButton.textContent = "Close";
-    closeButton.onclick = function () {
+    closeButton.onclick = function (e) {
+      // e.stopPropagation();
+      reports[index].clicked = false;
       container.style.display = "none";
       document
         .getElementById("emergencyList")
