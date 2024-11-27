@@ -525,7 +525,7 @@ function showMarkerPopup(index, reportsArray) {
   const report = reportsArray[index];
   if (report.marker) {
     report.marker.openPopup();
-    // map.panTo(report.marker.getLatLng());
+    map.panTo(report.marker.getLatLng());
   }
 }
 
