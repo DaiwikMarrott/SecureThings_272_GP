@@ -1,92 +1,78 @@
-# SecureThings_272_GP
-
-Group Project for CMPT272
-
-## ToDos:
-
-- [ ] Update UI (make it look better than it is as of now & responsive) [Priyansh]
-- [ ] Connect location to frontend + table & additional details [Luvveer + Sanchit]
-- [ ] Add functionality for Emergency handler (includes passcode) [Yasir]
-
-# Metro Vancouver 9-1-1 Emergency Call Answer System
+# Emergency Reporting System - Project Group 24
 
 ## Project Overview
 
-This project is a web-based emergency reporting system for Metro Vancouver’s 9-1-1 Emergency Call Answer Service. The application allows the public, including civilians, to submit emergency reports that can be monitored and reviewed by operators and first responders. The system logs essential information about each emergency, such as:
+This project implements a web-based emergency reporting system for Metro Vancouver's 9-1-1 Emergency Call Answer Service. The application allows civilians to submit emergency reports and enables operators and first responders to monitor and review these reports. The system logs crucial information about each emergency, including witness details, emergency type, location, and additional comments.
 
-- Witness's contact information
-- Type of emergency (fire, shooting, vehicle accident, medical, etc.)
-- Location of the emergency
-- Optional image link
-- Additional comments
+## Getting Started
 
-Operators can view, modify, and delete reports based on a passcode, with reports displayed interactively on a map.
+1. Clone the repository
+2. Open `index.html` in a web browser
+3. Use the form to submit emergency reports
+4. View submitted reports on the map and in the list
 
----
+## Key Features
 
-## Features and Requirements
-
-The project requirements include the following features:
-
-1. **Interactive Map with Emergency Markers**:
-
-   - Displays all reported emergencies on a map (using Leaflet and OpenStreetMap).
-   - Allows users to interact with markers to view details.
-   - Dynamically filters the emergency list based on map zoom level.
-
-2. **Detailed Emergency Report Submission**:
-
-   - A form to submit reports with fields for name, phone, emergency type, location, picture link, and comments.
-   - Automatically logs the report’s date, time, and status (initially set to OPEN).
-   - Report details are displayed interactively.
-
-3. **Passcode-protected Modifications**:
-
-   - Users can modify or delete reports after entering a valid passcode (to be implemented by the team).
-   - MD5 hash is required for passcode storage.
-
-4. **DOM Storage and Validation**:
-   - DOM Storage API is used to save data.
-   - Error handling and feedback for incorrect inputs.
-
----
+- Interactive map displaying emergency markers using Leaflet and OpenStreetMap
+- Detailed emergency report submission form
+- Dynamic list of emergency reports
+- Map marker interaction to view emergency details
+- Responsive web layout
 
 ## Technologies Used
 
-- **HTML, CSS, JavaScript**: Core front-end development
-- **Bootstrap**: Enhances UI components and styling
-- **Leaflet with OpenStreetMap**: Displays emergency markers on an interactive map
-- **CryptoJS**: Used for MD5 hashing of passcodes (to be implemented)
-- **DOM Storage API**: Stores emergency reports locally
+- HTML5, CSS3, JavaScript
+- Bootstrap 4.5.2 for responsive design
+- Leaflet.js for map integration
+- CryptoJS for MD5 hashing
+- DOM Storage API for local data storage
 
-## Completed Components
+## Project Requirements
 
-The following components have been implemented:
+1. Interactive map with emergency markers
+2. Detailed emergency report submission
+3. Passcode-protected modifications (to be implemented)
+4. Local data storage using DOM Storage API
+5. Input validation and error handling
 
-1. HTML Structure:
-   - **Basic structure with a navigation bar, form for submitting emergency reports, and a map section to display reports.**
-   - **Comments added to explain each section, making it easy for teammates to understand.**
-2. CSS Styling:
-   - **Applied a red-and-white theme based on Simon Fraser University colors.**
-   - **Styled navbar, form, buttons, and the map container.**
-   - **Comments explain styling for each component.**
-3. JavaScript Functionality:
-   - **Initialized the map with Leaflet and set a central view on Vancouver.**
-   - **Handled form submission for emergency reports with data validation.**
-   - **Displayed emergency reports dynamically as a list and on the map as markers.**
-   - **Added comments for each JavaScript function to explain its purpose and logic.**
+## Methodology
 
-So niggas as far as i know this is the shit that is left for us to complete
+Our team adopted an iterative development approach, focusing on implementing core functionalities first:
 
-1. Passcode Protection for Modifying/Deleting Reports:
-   - **Implement a passcode prompt for modification and deletion actions.**
-   - **Use MD5 hashing (via CryptoJS) to store and verify the passcode.**
-2. Map Integration with Leaflet API:
-   - **Add functionality to update the emergency list dynamically based on map zoom level.**
-   - **Highlight a marker on the map when a corresponding list item is clicked.**
-3. Error Handling and Input Validation:
-   - **Implement feedback for incorrect form inputs, such as an alert for invalid phone numbers.**
-   - **Add error feedback for failed map operations if any issues occur with marker placements.**
-4. Advanced UI Enhancements (Optional):
-   - **Add animations to the search bar and other form elements.**
-   - **Improve map interactivity, such as zoom-specific marker clusters (if feasible).**
+1. Set up the basic HTML structure with Bootstrap for styling
+2. Implemented the emergency report submission form
+3. Integrated Leaflet.js for map functionality
+4. Developed the dynamic emergency list display
+
+## Challenges Faced
+
+1. First-time use of GitHub and git branching for most team members
+2. Integrating Leaflet.js with dynamic report data
+3. Implementing secure passcode protection for report modifications
+4. Filtering reports based on map bounds
+5. Handling filtered reports on map and additional information containers
+
+## Lessons Learned
+
+1. Importance of version control and collaborative coding using GitHub
+2. Practical application of web APIs (Leaflet, DOM Storage)
+3. Balancing functionality with user experience in web application design
+4. State management in vanilla js
+5. Create issue &rarr; assign members, add tags &rarr; Link commit to issue &rarr; Resolve/Comment &rarr; Merge
+
+## Potential Issues and Future Improvements
+
+1. Implement geolocation for more accurate emergency location reporting
+2. Enhance security measures for passcode protection
+3. Improve map interactivity with clustering for multiple reports in close proximity
+4. Implement real-time updates for emergency reports
+5. Club/Group emergency reports for same location
+
+## GitHub and Git Branch Usage
+
+This project marked the first time using GitHub and git branching for most team members. We learned to:
+
+- Create and manage repositories
+- Work with branches for feature development
+- Resolve merge conflicts
+- Collaborate effectively using pull requests

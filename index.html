@@ -5,34 +5,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Emergency Reporting System Group 24</title>
-
+  <!-- Local Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
   <!-- Bootstrap 4 CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
   <!-- jQuery (required for Bootstrap 4) -->
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-
   <!-- Popper.js (required for Bootstrap 4) -->
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-
   <!-- Bootstrap 4 JS -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
   <!-- CryptoJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
-
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-
 </head>
 
-
 <body>
-
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="d-flex justify-content-between align-items-center w-100">
@@ -49,8 +40,6 @@
       </ul>
     </div>
   </nav>
-
-
   <!-- Emergency Report Form -->
   <div class="container mt-5 pt-5">
     <h2 id="report-form" class="fs-5 fs-md-3 fs-lg-1">Report an Emergency</h2>
@@ -90,8 +79,7 @@
       <button type="submit" class="btn btn-primary">Submit Report</button>
     </form>
   </div>
-
-  <!-- Map and Emergency List area, yeh nahi ata bro mere ko toh sath karlete hai-->
+  <!-- Map and Emergency List area -->
   <div class="container mt-5">
     <h2 id="map" class="fs-5 fs-md-3 fs-lg-1">Emergency Map</h2>
     <div id="mapid" style="height: 400px;"></div>
@@ -109,7 +97,6 @@
         </div>
       </div>
     </div>
-
     <div id="emergencyList" class="mt-3">
       <h3 class="fs-5 fs-md-3 fs-lg-1">Emergency Reports</h3>
       <div class="table-responsive">
@@ -117,12 +104,6 @@
       </div>
     </div>
   </div>
-
-
-  <!-- The hashing for the password generation has to be also done which i also do not know how to do -->
-  <!-- lastly we have to have 1 password or each operator has to have a unique password ?? -->
-  <!-- I also wanted to make a login option at the side so that normally we can make a report and submit but when we login as operators we should see different options toh i think a new page with the same layout should also be done but with the additional buttons and stuff -->
-
   <script src="script.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -139,7 +120,6 @@
           }
         });
       });
-
       // Add click event to navbar-toggler (to toggle open/close)
       navbarToggler.addEventListener("click", function () {
         $(navbarCollapse).collapse("toggle");
