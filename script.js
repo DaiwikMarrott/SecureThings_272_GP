@@ -52,9 +52,6 @@ document.querySelector("#reporterName").addEventListener("input" ,e => {
   const formattedValue = formatNameToTitleCase(e.target.value);
         e.target.value = formattedValue;
 })
-
-
-
 function formatNameToTitleCase(input) {
     // Handle empty input
     if (!input) return '';
@@ -79,7 +76,6 @@ document.querySelector("#reporterPhone").addEventListener("input" ,e => {
   const formattedValue = formatPhoneNumber(e.target.value);
         e.target.value = formattedValue;
 })
-
 function formatPhoneNumber(input) {
   // Remove all non-numeric characters
   let cleaned = input.replace(/\D/g, '');

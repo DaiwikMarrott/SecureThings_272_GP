@@ -25,7 +25,7 @@
 
 <body>
   <!-- Navigation Bar -->
-  <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="d-flex justify-content-between align-items-center w-100">
       <a class="navbar-brand text-wrap fs-5 fs-md-3 fs-lg-1" href="#">Emergency Reporting System</a>
       <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
@@ -39,221 +39,45 @@
         <li class="nav-item"><a class="nav-link" href="#map">View Map</a></li>
       </ul>
     </div>
-  </nav> -->
-  <!-- daiwik code for nav bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container-fluid">
-      <!-- Logo and Brand -->
-      <div class="d-flex align-items-center">
-        <svg class="text-danger me-2" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <a class="navbar-brand fs-4 fw-semibold" href="#">Emergency Reporting System</a>
-      </div>
-  
-      <!-- Mobile Toggle Button -->
-      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-  
-      <!-- Navigation Items -->
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto align-items-center">
-          <!-- Main Navigation -->
-          <li class="nav-item mx-1">
-            <a class="nav-link d-flex align-items-center text-danger px-3 py-2 rounded-3 hover-bg-dark" href="#report-form">
-              <svg class="me-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-              </svg>
-              Report Emergency
-            </a>
-          </li>
-          <li class="nav-item mx-1">
-            <a class="nav-link d-flex align-items-center px-3 py-2 rounded-3 hover-bg-dark" href="#map">
-              <svg class="me-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-              View Map
-            </a>
-          </li>
-  
-          <!-- User Actions -->
-          <li class="nav-item ms-lg-3 border-start border-secondary">
-            <div class="d-flex align-items-center ps-lg-3">
-              <!-- Notifications -->
-              <!-- <button class="btn btn-link nav-link p-2 rounded-circle position-relative">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-                <span class="position-absolute top-0 end-0 p-1 bg-danger border border-light rounded-circle">
-                  <span class="visually-hidden">New notifications</span>
-                </span>
-              </button> -->
-  
-              <!-- Settings -->
-              <!-- <button class="btn btn-link nav-link p-2 rounded-circle">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-              </button> -->
-  
-              <!-- Account -->
-              <!-- <button class="btn btn-link nav-link d-flex align-items-center px-3 py-2 rounded-3">
-                <svg class="me-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                Account
-              </button> -->
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
   </nav>
-
-
   <!-- Emergency Report Form -->
   <div class="container mt-5 pt-5">
-    <div class="card shadow-sm border-0">
-      <div class="card-body p-4">
-        <!-- Header -->
-        <div class="d-flex align-items-center mb-4">
-          <div class="emergency-icon-bg rounded-circle me-3 p-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-danger">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-          </div>
-          <h2 id="report-form" class="card-title mb-0">Report an Emergency</h2>
-        </div>
-  
-        <form id="emergencyForm" novalidate>
-          <!-- Contact Information Section -->
-          <div class="row g-3 mb-4">
-            <div class="col-md-6">
-              <label for="reporterName" class="form-label">Full Name <span class="text-danger">*</span></label>
-              <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                </span>
-                <input type="text" class="form-control border-start-0" id="reporterName" placeholder="Enter your full name" required>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label for="reporterPhone" class="form-label">Phone Number <span class="text-danger">*</span></label>
-              <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                  </svg>
-                </span>
-                <input type="tel" class="form-control border-start-0" id="reporterPhone" placeholder="Enter your phone number" required>
-              </div>
-            </div>
-          </div>
-  
-          <!-- Emergency Details Section -->
-          <div class="row g-3 mb-4 align-items-center justify-content-center space-evenly section1">
-            <div class="mb-4 ">
-              <label class="form-label">Emergency Type <span class="text-danger">*</span></label>
-              <div class="emergency-type-grid">
-                <button type="button" class="emergency-type-btn" data-type="fire">
-                  <span>Fire</span>
-                  <span class="emergency-icon">🔥</span>
-                </button>
-                <button type="button" class="emergency-type-btn" data-type="medical">
-                  <span>Medical</span>
-                  <span class="emergency-icon">🚑</span>
-                </button>
-                <button type="button" class="emergency-type-btn" data-type="police">
-                  <span>Police</span>
-                  <span class="emergency-icon">👮‍♂️</span>
-                </button>
-                <button type="button" class="emergency-type-btn" data-type="natural">
-                  <span>Natural Disaster</span>
-                  <span class="emergency-icon">🌪️</span>
-                </button>
-              </div>
-              <input type="hidden" id="emergencyType" required>
-            </div>
-            <div class="col-md-6 ">
-              <div class="mb-4 ">
-                <label for="location" class="form-label d-flex align-items-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                  Location <span class="text-danger">*</span>
-                </label>
-                <div class="location-input-group ">
-                  <input type="search" class="form-control" id="location" placeholder="Enter location or use current location" required>
-                  <button type="button" class="location-btn" id="useCurrentLocation">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
-                    </svg>
-                    Current Location
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-  
-          <!-- Additional Information Section -->
-           <!-- UPLAOD PICS -->
-          <div class="mb-4">
-            <label class="form-label d-flex align-items-center gap-2">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                <polyline points="21 15 16 10 5 21"></polyline>
-              </svg>
-              Upload Photos (Optional)
-            </label>
-            <div class="upload-area" id="uploadArea">
-              <input type="file" id="photoUpload" class="hidden-upload" multiple accept="image/*">
-              <div class="upload-content">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                <p>Drop photos here or <span class="upload-link">click to upload</span></p>
-              </div>
-            </div>
-          </div>
-  
-          <div class="mb-4">
-            <label for="comments" class="form-label">Additional Details</label>
-            <textarea class="form-control" id="comments" rows="4" placeholder="Provide any additional details about the emergency..."></textarea>
-          </div>
-  
-          <!-- Submit Button -->
-          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <button type="button" class="btn btn-light me-md-2" id="resetForm">Reset</button>
-            <button type="submit" class="btn btn-danger px-4 d-flex align-items-center gap-2">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-              Submit Report
-            </button>
-          </div>
-        </form>
+    <h2 id="report-form" class="fs-5 fs-md-3 fs-lg-1">Report an Emergency</h2>
+    <form id="emergencyForm" novalidate>
+      <div class="form-group">
+        <label for="reporterName">Name</label>
+        <!-- Made them required so without these we could not submit the form hence the (required) thing at the end -->
+        <input type="text" class="form-control" id="reporterName" required>
       </div>
-    </div>
+      <div class="form-group">
+        <label for="reporterPhone">Phone Number</label>
+        <input type="text" class="form-control" id="reporterPhone" required>
+      </div>
+      <div class="form-group">
+        <label for="emergencyType">Emergency Type</label>
+        <!-- made a small option selection idk if the dropdown style looks good or not but try -->
+        <select class="form-control" id="emergencyType">
+          <option>Fire</option>
+          <option>Shooting</option>
+          <option>Vehicle Accident</option>
+          <option>Medical</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input type="search" class="form-control" id="location" required>
+      </div>
+      <div class="form-group">
+        <label for="pictureLink">Picture Link (optional)</label>
+        <input type="url" class="form-control" id="pictureLink">
+      </div>
+      <div class="form-group">
+        <!-- A small div to add comments for a descibtion of the insident -->
+        <label for="comments">Comments</label>
+        <textarea class="form-control" id="comments"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Report</button>
+    </form>
   </div>
   <!-- Map and Emergency List area -->
   <div class="container mt-5">
