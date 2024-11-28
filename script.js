@@ -46,7 +46,6 @@ function toTitleCase(str) {
     (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
   );
 }
-
 /* daiwik - name formatting */
 document.querySelector("#reporterName").addEventListener("input" ,e => {
   const formattedValue = formatNameToTitleCase(e.target.value);
@@ -109,7 +108,6 @@ function formatPhoneNumber(input) {
   
   return formatted || '';
 }
-
 // Validation functions
 function validateReport(report) {
   const excludeProperties = ["pictureLink", "comments"];
@@ -613,18 +611,7 @@ function displayReports(reports) {
     reports.forEach((report, index) => {
       const row = document.createElement("tr");
       row.style.cursor = "pointer";
-      row.onclick = function (e) {
-        // console.log(e.target, e);
-        // console.log(document.createElement("a"));
-        
-        if (e.target.textContent !== "MORE INFO") {
-          e.stopPropagation();
-          // console.log("here");
-          
-          return;
-        }
-        // console.log("here to open");
-
+      row.onclick = function () {
         // console.log("row has been clicked");
         showMarkerPopup(index, reports);
         reports[index].clicked = true;
@@ -649,7 +636,7 @@ function displayReports(reports) {
 
           // Bind the deleteRow function to the delete button
           td.addEventListener("click", function (e) {
-            // e.stopPropagation(); // Prevent row click event from firing
+            e.stopPropagation(); // Prevent row click event from firing
             deleteRow(index, reports); // Call the deleteRow function
           });
         } else if (key === "moreInfo") {
@@ -660,9 +647,9 @@ function displayReports(reports) {
           a.textContent = "MORE INFO";
           a.onclick = function (e) {
             e.preventDefault();
-            // e.stopPropagation();
+            e.stopPropagation();
             // console.log(index);
-            reports[index].clicked = true;  
+            reports[index].clicked = true;
             showMoreInfo(index, reports); // Call the function to show "More Info" container
           };
           td.appendChild(a);
