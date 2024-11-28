@@ -439,9 +439,9 @@ function creating_long_lat(locationName, type, reportIndex) {
           showValidation(
             document.getElementById("location"),
             false,
-            "Location not found. Please check the spelling and try again."
+            "Location not found within Canada. Please check the spelling and try again."
           );
-          reject("Location not found");
+          reject("Location not found.");
         }
       })
       .catch((error) => {
