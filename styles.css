@@ -60,30 +60,60 @@ body {
 
 
 
+/*More info styling*/
 #moreInfoContainer {
-  width: 60%; /* Adjust as per your requirement */
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.card-body {
+  padding: 1.25rem;
 }
 
-#moreInfoContainer img {
-  max-width: 100%;
+#reportImage {
+  width: 100%;
+  max-width: 500px;
   height: auto;
-}
-
-.center-image {
+  margin: 0 auto 0.75rem;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 100%; /* Optional: Ensures the image does not overflow */
+}
+
+#reportDetails {
+  text-align: left;
+  line-height: 1.5;
+  color: #333;
+  margin-bottom: 0.5em;
 }
 
 
-.center-message {
+#statusChange {
   text-align: center;
-  margin-top: 20px; /* Adjust as needed */
+  margin: 1.5rem 0;
 }
 
+#reportStatus {
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
 
-/*  */
+.badge-warning {
+  background-color: #ffd700;
+  color: #000;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: normal;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border: none;
+  padding: 0.5rem 2rem;
+  border-radius: 4px;
+  width: 100px;
+  font-size: 0.9rem;
+}
+
 
 
 /* Enhanced Navbar Styling */
