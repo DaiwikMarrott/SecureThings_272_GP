@@ -872,9 +872,8 @@ function showMoreInfo(index, reports) {
   reportDetailsElement.innerHTML += `
       <strong>Type:</strong> ${report.type} <br>
       <strong>Location:</strong> ${report.location} <br>
-      <strong>Reported by:</strong> ${toTitleCase(report.name)} (${
-    report.phone
-  }) <br>
+      <strong>Reported by:</strong> ${toTitleCase(report.name)} <br>
+      <strong>Phone:</strong> ${report.phone} <br>
       <strong>Time:</strong> ${report.time} <br>
       <strong>Comments:</strong> ${report.comments || "No additional comments"}
     `;
