@@ -836,6 +836,7 @@ function updateContainerContent(
     <strong>Comments:</strong> ${report.comments || "No additional comments"}
   `;
 
+
   // Status and Change button
   statusChangeContainer.innerHTML = `
     Status: <span id="reportStatus">${report.status}</span>
