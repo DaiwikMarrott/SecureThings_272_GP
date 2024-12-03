@@ -832,6 +832,14 @@ function showMoreInfo(index, reports) {
     return;
   }
 
+  if (report.pictureLink && report.pictureLink.trim() !== ""){
+    reportImageElement.style.height = "250px";
+    reportImageElement.style.width = "250px";
+  }else{
+    reportImageElement.style.height = "0px";
+    reportImageElement.style.width = "0px";
+  }
+  
   // Reset container content
   reportImageElement.src = "";
   reportImageElement.alt = "";

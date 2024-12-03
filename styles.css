@@ -336,6 +336,11 @@ body {
     width: 100%;
     justify-content: center;
   }
+  #reportImage {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
 }
 
 /* Add smooth transitions */
