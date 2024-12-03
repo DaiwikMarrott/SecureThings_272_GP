@@ -3,7 +3,19 @@ var map = L.map("mapid").setView([49.2827, -123.1207], 10); // center on Vancouv
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18,
 }).addTo(map);
-map.on("moveend", filterReportsByMapBounds);
+map.on("moveend", function () {
+  filterReportsByMapBounds();
+  if (currentDisplayedReportIndex !== null) {
+    const currentReport = reports[currentDisplayedReportIndex];
+    if (
+      currentReport.marker &&
+      !map.getBounds().contains(currentReport.marker.getLatLng())
+    ) {
+      // document.getElementById("moreInfoContainer").style.display = "none";
+      currentDisplayedReportIndex = null;
+    }
+  }
+});
 
 let reports = [];
 let sortState = {};
@@ -11,8 +23,8 @@ let mapMarkers = [];
 let crossSymbol = "&#x274C;";
 let locationInvalid = false;
 let currentDisplayedReportIndex = null;
-let activeMarker = null;
 let filteredReports = [];
+let isActive = false;
 
 // Initial passcode and its MD5 hash stored in local storage
 const initialPasscode = "admin123"; // Change this to your desired initial passcode
@@ -133,7 +145,7 @@ function validateReport(report) {
       toTitleCase(prop)
     );
     throw new Error(
-      `The following properties are empty: ${formattedProperties.join(", ")}`
+      `The following form fields are empty: ${formattedProperties.join(", ")}`
     );
   }
 }
@@ -156,7 +168,8 @@ function validateInput(value, type, callback) {
     pictureLink: {
       regex:
         /^(https?:\/\/)([\w\-]+(\.[\w\-]+)+)(:[0-9]+)?(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/,
-      errorMsg: "Invalid URL format for the picture link.",
+      errorMsg:
+        "Please provide a valid URL for the image. The URL should start with http:// or https:// and point to a publicly accessible image file. Acceptable formats include JPEG, PNG, and WebP.",
     },
   };
 
@@ -229,7 +242,7 @@ function showValidation(element, isValid, errorMsg, optional = false) {
   validationMsg.className = `alert alert-${isValid ? "success" : "danger"}`;
   validationMsg.innerHTML = isValid
     ? "Validation Successful!"
-    : `Validation Unsuccessful!<br>${errorMsg}`;
+    : `Form Validation Unsuccessful!<br>${errorMsg}`;
 }
 
 // Enabling Local Storage so that content does not vanish on page reload
@@ -285,7 +298,6 @@ async function handleFormSubmission(event) {
     delete: false,
     marker: null,
     locationNameFromAPI: null,
-    clicked: false,
   };
 
   // Do not allow submissions if required fields are empty;
@@ -311,6 +323,7 @@ async function handleFormSubmission(event) {
     document
       .getElementById("emergencyList")
       .scrollIntoView({ behavior: "smooth" });
+    showMarkerPopup(reports.length - 1, reports);
   } catch (error) {
     // console.error("Error processing report:", error);
     showValidation(document.getElementById("comments"), false, error);
@@ -377,57 +390,7 @@ function creating_long_lat(locationName, type, reportIndex) {
 
           geoMarker.on("click", function (e) {
             e.originalEvent.stopPropagation();
-
-            // Close and reset the active marker if it exists and is different
-            if (activeMarker && activeMarker !== this) {
-              activeMarker.closePopup();
-              reports[activeMarker.reportIndex].clicked = false;
-
-              const container = document.getElementById("moreInfoContainer");
-              if (container) {
-                container.style.display = "none";
-              }
-            }
-
-            // Toggle the current marker's state
-            if (!reports[this.reportIndex].clicked) {
-              reports[this.reportIndex].clicked = true;
-              this.openPopup();
-              showMoreInfo(reportIndex, reports);
-              activeMarker = this; // Set the current marker as active
-            } else {
-              this.closePopup();
-              reports[this.reportIndex].clicked = false;
-
-              const container = document.getElementById("moreInfoContainer");
-              if (container) {
-                container.style.display = "none";
-              }
-
-              activeMarker = null; // Reset the active marker
-            }
-          });
-
-          geoMarker.on("popupopen", (e) => {
-            const popupElement = e.popup._container;
-
-            // Query the close button inside the popup
-            const closeButton = popupElement.querySelector(
-              ".leaflet-popup-close-button"
-            );
-
-            // Add an event listener to handle close button clicks
-            if (closeButton) {
-              closeButton.addEventListener("click", () => {
-                const container = document.getElementById("moreInfoContainer");
-                if (container) {
-                  reports[reportIndex].clicked = false;
-                  container.style.display = "none";
-                }
-
-                activeMarker = null; // Reset the active marker
-              });
-            }
+            showMoreInfo(this.reportIndex, reports);
           });
 
           reports[reportIndex].marker = geoMarker;
@@ -552,21 +515,12 @@ function filterReportsByMapBounds() {
     return false;
   });
 
-  // Check if the currently displayed "More Info" container should be hidden
-  const moreInfoContainer = document.getElementById("moreInfoContainer");
-  if (
-    moreInfoContainer.style.display === "block" &&
-    currentDisplayedReportIndex !== null
-  ) {
+  if (currentDisplayedReportIndex !== null) {
     const currentReport = reports[currentDisplayedReportIndex];
-    const reportStillVisible = filteredReports.some(
-      (report) => report.location === currentReport.location
-    );
-
-    if (!reportStillVisible) {
-      currentReport.clicked = false;
-      moreInfoContainer.style.display = "none";
+    if (!filteredReports.includes(currentReport)) {
+      document.getElementById("moreInfoContainer").style.display = "none";
       currentDisplayedReportIndex = null;
+      isActive = false;
     }
   }
 
@@ -575,7 +529,7 @@ function filterReportsByMapBounds() {
   } else {
     const reportList = document.getElementById("reports");
     reportList.innerHTML = "";
-    reportList.textContent = "No reports available in the current view.";
+    reportList.textContent = "No reports available in the current map view.";
   }
 }
 
@@ -625,8 +579,7 @@ function displayReports(reports) {
       row.style.cursor = "pointer";
       row.onclick = function () {
         // console.log("row has been clicked");
-        showMarkerPopup(index, reports);
-        reports[index].clicked = true;
+        console.log(reports[index]);
         showMoreInfo(index, reports);
       };
 
@@ -660,8 +613,6 @@ function displayReports(reports) {
           a.onclick = function (e) {
             e.preventDefault();
             e.stopPropagation();
-            // console.log(index);
-            reports[index].clicked = true;
             showMoreInfo(index, reports); // Call the function to show "More Info" container
           };
           td.appendChild(a);
@@ -703,7 +654,6 @@ function deleteRow(index) {
       // Check if the currently displayed report matches the report being deleted
       if (currentReportDetails.includes(deletedReportLocation)) {
         moreInfoContainer.style.display = "none";
-        reports[index].clicked = false;
       }
     }
 
@@ -813,30 +763,48 @@ function handleChangeStatus(index) {
 }
 
 function showMoreInfo(index, reports) {
-  // console.log("show more info toggled");
-  // reports[index].clicked = true;
-  const report = reports[index];
-  currentDisplayedReportIndex = index;
   const container = document.getElementById("moreInfoContainer");
   const reportImageElement = document.getElementById("reportImage");
   const reportDetailsElement = document.getElementById("reportDetails");
   const statusChangeContainer = document.getElementById("statusChange");
-
-  if (
-    !container ||
-    !reportImageElement ||
-    !reportDetailsElement ||
-    !statusChangeContainer
-  ) {
-    console.error("Missing one or more elements for the More Info container.");
-    return;
+  if (currentDisplayedReportIndex === index) {
+    // Toggle off if clicking the same report
+    container.style.display = "none";
+    currentDisplayedReportIndex = null;
+    if (reports[index].marker) {
+      reports[index].marker.closePopup();
+    }
+  } else {
+    // Show details for the new report
+    updateContainerContent(
+      reports[index],
+      reportImageElement,
+      reportDetailsElement,
+      statusChangeContainer
+    );
+    container.style.display = "block";
+    currentDisplayedReportIndex = index;
+    if (reports[index].marker) {
+      reports[index].marker.openPopup();
+      map.panTo(reports[index].marker.getLatLng());
+    }
   }
 
+  container.scrollIntoView({ behavior: "smooth" });
+}
+
+function updateContainerContent(
+  report,
+  reportImageElement,
+  reportDetailsElement,
+  statusChangeContainer
+) {
   // Reset container content
   reportImageElement.src = "";
   reportImageElement.alt = "";
   reportDetailsElement.innerHTML = "";
   statusChangeContainer.innerHTML = "";
+  isActive = true;
 
   // Handle image display
   const imageUrl =
@@ -845,21 +813,11 @@ function showMoreInfo(index, reports) {
       : null;
 
   if (imageUrl) {
-    checkImage(imageUrl, function (isValid, optional) {
-      if (isValid && !optional) {
-        reportImageElement.src = imageUrl;
-        reportImageElement.alt = "Report Image";
-        reportImageElement.style.display = "block";
-        reportImageElement.classList.add("center-image");
-        document.getElementById("noImageMessage")?.remove();
-      } else {
-        reportImageElement.style.display = "none";
-        showNoImageMessage(
-          reportDetailsElement,
-          "No publicly accessible image found for this report."
-        );
-      }
-    });
+    reportImageElement.src = imageUrl;
+    reportImageElement.alt = "Report Image";
+    reportImageElement.style.display = "block";
+    reportImageElement.classList.add("center-image");
+    document.getElementById("noImageMessage")?.remove();
   } else {
     reportImageElement.style.display = "none";
     showNoImageMessage(
@@ -870,22 +828,23 @@ function showMoreInfo(index, reports) {
 
   // Set the report details
   reportDetailsElement.innerHTML += `
-      <strong>Type:</strong> ${report.type} <br>
-      <strong>Location:</strong> ${report.location} <br>
-      <strong>Reported by:</strong> ${toTitleCase(report.name)} <br>
-      <strong>Phone:</strong> ${report.phone} <br>
-      <strong>Time:</strong> ${report.time} <br>
-      <strong>Comments:</strong> ${report.comments || "No additional comments"}
-    `;
+    <strong>Type:</strong> ${report.type} <br>
+    <strong>Location:</strong> ${report.location} <br>
+    <strong>Reported by:</strong> ${toTitleCase(report.name)} <br>
+    <strong>Phone:</strong> ${report.phone} <br>
+    <strong>Time:</strong> ${report.time} <br>
+    <strong>Comments:</strong> ${report.comments || "No additional comments"}
+  `;
+
 
   // Status and Change button
   statusChangeContainer.innerHTML = `
-      Status: <span id="reportStatus">${report.status}</span>
-      <a href="#" id="changeStatus" class="badge badge-warning" style="cursor: pointer;">Change</a>
-    `;
+    Status: <span id="reportStatus">${report.status}</span>
+    <a href="#" id="changeStatus" class="badge badge-warning" style="cursor: pointer;">Change</a>
+  `;
   document.getElementById("changeStatus").onclick = function (e) {
     e.preventDefault();
-    handleChangeStatus(index);
+    handleChangeStatus(reports.indexOf(report));
   };
 
   // Close button logic
@@ -895,19 +854,16 @@ function showMoreInfo(index, reports) {
     closeButton.id = "closeContainer";
     closeButton.className = "btn btn-secondary btn-sm mt-3";
     closeButton.textContent = "Close";
-    closeButton.onclick = function (e) {
-      // e.stopPropagation();
-      reports[index].clicked = false;
+    closeButton.onclick = function () {
       container.style.display = "none";
+      isActive = false;
       document
         .getElementById("emergencyList")
         .scrollIntoView({ behavior: "smooth" });
     };
+    const container = document.getElementById("moreInfoContainer");
     container.querySelector(".card-body").appendChild(closeButton);
   }
-
-  container.style.display = "block";
-  container.scrollIntoView({ behavior: "smooth" });
 }
 
 // Helper function to show the "No image found" message
@@ -987,4 +943,9 @@ document.getElementById("pictureLink").addEventListener("input", function () {
       showValidation(this, isValid, errorMsg, optional);
     }
   );
+});
+
+window.addEventListener("load", function () {
+  isActive = false;
+  document.getElementById("moreInfoContainer").style.display = "none";
 });

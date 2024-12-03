@@ -1,5 +1,15 @@
 # Emergency Reporting System - Project Group 24
 
+## Individual Contribution:
+
+Everybody contributed equally to the project. 20% contribution of each member.
+
+- Chowdhury Yasir (cya127): MD5 Crypto Hashing, show more info container styling
+- Daiwik Marrott (drm11): Issue fixes across UI, bootstrap integration and UI enhancements
+- Luvveer Singh Lamba (lsl11): Event & state management, leaflets Map API
+- Priyansh Sarvaiya (pgs3): Linking events of table and map, Form Validation
+- Sanchit Jain (sja164): Map marker events, Table of reports
+
 ## Project Overview
 
 This project implements a web-based emergency reporting system for Metro Vancouver's 9-1-1 Emergency Call Answer Service. The application allows civilians to submit emergency reports and enables operators and first responders to monitor and review these reports. The system logs crucial information about each emergency, including witness details, emergency type, location, and additional comments.
