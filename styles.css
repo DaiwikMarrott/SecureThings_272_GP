@@ -264,56 +264,6 @@ body {
   background-color: #3367d6;
 }
 
-/* Upload Area */
-.upload-area {
-  border: 2px dashed #dee2e6;
-  border-radius: 8px;
-  padding: 2rem;
-  text-align: center;
-  transition: all 0.2s ease;
-  position: relative;
-  cursor: pointer;
-}
-
-.upload-area:hover {
-  border-color: #b5121b;
-  background-color: rgba(181, 18, 27, 0.05);
-}
-
-.hidden-upload {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.upload-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  color: #6c757d;
-}
-
-.upload-content svg {
-  color: #b5121b;
-}
-
-.upload-link {
-  color: #b5121b;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* Dragover state */
-.upload-area.dragover {
-  border-color: #b5121b;
-  background-color: rgba(181, 18, 27, 0.05);
-}
-
 /* Mobile Responsiveness */
 @media (max-width: 767.98px) {
   .emergency-type-grid {
@@ -333,8 +283,7 @@ body {
 /* Add smooth transitions */
 .form-control,
 .emergency-type-btn,
-.location-btn,
-.upload-area {
+.location-btn {
   transition: all 0.2s ease-in-out;
 }
 

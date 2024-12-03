@@ -507,6 +507,7 @@ function sortTable(columnIndex) {
 }
 
 function filterReportsByMapBounds() {
+  // Handle panning map and filter reports based on bounds
   const bounds = map.getBounds();
   const filteredReports = reports.filter((report) => {
     if (report.marker) {
@@ -836,7 +837,6 @@ function updateContainerContent(
     <strong>Comments:</strong> ${report.comments || "No additional comments"}
   `;
 
-
   // Status and Change button
   statusChangeContainer.innerHTML = `
     Status: <span id="reportStatus">${report.status}</span>
@@ -885,6 +885,7 @@ function checkImage(url, callback) {
   if (url === "") {
     callback(true, true);
   }
+  // validate image link by making a request
   const request = new XMLHttpRequest();
   request.open("HEAD", url, true);
   request.onload = function () {
@@ -906,6 +907,7 @@ function checkImage(url, callback) {
 }
 
 function validateWithImageObject(url, callback) {
+  // validating by checking if there really is a valid image element by putting in url for src attribute
   const img = new Image();
   img.onload = function () {
     callback(true, false);
