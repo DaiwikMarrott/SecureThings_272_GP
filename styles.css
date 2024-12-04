@@ -98,12 +98,6 @@ body {
   font-size: 0.8em;
 }
 
-.sort-symbol::after {
-  content: "\2195";
-  font-family: system-ui, -apple-system, sans-serif;
-  color: currentColor;
-}
-
 #reportStatus {
   font-weight: 500;
   margin-right: 0.5rem;
