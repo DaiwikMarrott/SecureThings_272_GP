@@ -70,7 +70,8 @@ Our team adopted an iterative development approach, focusing on implementing cor
 2. Practical application of web APIs (Leaflet, DOM Storage)
 3. Balancing functionality with user experience in web application design
 4. State management in vanilla js
-5. Create issue &rarr; assign members, add tags &rarr; Link commit to issue &rarr; Resolve/Comment &rarr; Merge
+5. Always use SVG for icons to ensure consistency across devices
+6. Create issue &rarr; assign members, add tags &rarr; Link commit to issue &rarr; Resolve/Comment &rarr; Merge
 
 ## Potential Issues and Future Improvements
 
