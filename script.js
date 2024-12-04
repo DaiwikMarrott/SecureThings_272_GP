@@ -433,7 +433,11 @@ function initTable(headers) {
     } else {
       th.innerHTML = `${
         key.charAt(0).toUpperCase() + key.slice(1)
-      } <span class="sort-symbol">${sortSymbol}</span>`;
+      }<span class="sort-symbol">${sortSymbol}</span>`;
+      console.log(
+        key.charAt(0).toUpperCase() + key.slice(1),
+        (key.charAt(0).toUpperCase() + key.slice(1)).length
+      );
       th.style.cursor = "pointer";
       th.addEventListener("click", () => {
         sortTable(index);

@@ -88,6 +88,16 @@ body {
   margin: 1.5rem 0;
 }
 
+.table th {
+  white-space: nowrap;
+}
+
+.sort-symbol {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 0.8em;
+}
+
 #reportStatus {
   font-weight: 500;
   margin-right: 0.5rem;
