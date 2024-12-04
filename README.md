@@ -20,6 +20,8 @@ This project implements a web-based emergency reporting system for Metro Vancouv
 2. Open `index.html` in a web browser
 3. Use the form to submit emergency reports
 4. View submitted reports on the map and in the list
+5. Sort table by table header by clicking on a particular header
+6. Filter reports by panning map to different locations
 
 ## Key Features
 
