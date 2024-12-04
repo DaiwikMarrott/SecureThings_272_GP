@@ -21,6 +21,9 @@ let reports = [];
 let sortState = {};
 let mapMarkers = [];
 let crossSymbol = "&#x274C;";
+let sortSymbol = "&#x2195;"; // Up and down arrow
+let sortAscSymbol = "&#x2191;"; // Up arrow
+let sortDescSymbol = "&#x2193;"; // Down arrow
 let locationInvalid = false;
 let currentDisplayedReportIndex = null;
 let filteredReports = [];
@@ -422,27 +425,22 @@ function creating_long_lat(locationName, type, reportIndex) {
 function initTable(headers) {
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
-
   headers.forEach((key, index) => {
     const th = document.createElement("th");
-    th.scope = "col"; // Accessibility for Bootstrap tables
-
+    th.scope = "col";
     if (key === "moreInfo" || key === "delete") {
-      th.textContent = ""; // Skip non-sortable columns
+      th.textContent = "";
     } else {
-      th.textContent = key.charAt(0).toUpperCase() + key.slice(1); // Capitalize header name
-
-      // Add a click event listener for sorting
-      th.style.cursor = "pointer"; // Indicate clickable headers
+      th.innerHTML = `${
+        key.charAt(0).toUpperCase() + key.slice(1)
+      } <span class="sort-symbol">${sortSymbol}</span>`;
+      th.style.cursor = "pointer";
       th.addEventListener("click", () => {
-        console.log(`Sorting column: ${key} (Index: ${index})`); // Debugging
-        sortTable(index); // Call sortTable with the correct column index
+        sortTable(index);
       });
     }
-
     headerRow.appendChild(th);
   });
-
   thead.appendChild(headerRow);
   return thead;
 }
@@ -450,12 +448,14 @@ function initTable(headers) {
 function updateSortIndicators(sortedColumnIndex) {
   const headers = document.querySelectorAll("#reports th");
   headers.forEach((header, index) => {
-    header.classList.remove("sorted-asc", "sorted-desc");
-    if (index === sortedColumnIndex) {
-      if (sortState[sortedColumnIndex]) {
-        header.classList.add("sorted-asc");
+    const symbolSpan = header.querySelector(".sort-symbol");
+    if (symbolSpan) {
+      if (index === sortedColumnIndex) {
+        symbolSpan.innerHTML = sortState[sortedColumnIndex]
+          ? sortAscSymbol
+          : sortDescSymbol;
       } else {
-        header.classList.add("sorted-desc");
+        symbolSpan.innerHTML = sortSymbol;
       }
     }
   });
@@ -482,27 +482,23 @@ function sortTable(columnIndex) {
   const tbody = table.querySelector("tbody");
   const rows = Array.from(tbody.querySelectorAll("tr"));
 
-  // Toggle sort direction
-  sortState[columnIndex] = !sortState[columnIndex];
+  if (sortState[columnIndex] === undefined) {
+    sortState[columnIndex] = true;
+  } else {
+    sortState[columnIndex] = !sortState[columnIndex];
+  }
 
   rows.sort((a, b) => {
     const aValue = a.cells[columnIndex].textContent;
     const bValue = b.cells[columnIndex].textContent;
-
-    if (sortState[columnIndex]) {
-      return aValue.localeCompare(bValue);
-    } else {
-      return bValue.localeCompare(aValue);
-    }
+    return sortState[columnIndex]
+      ? aValue.localeCompare(bValue)
+      : bValue.localeCompare(aValue);
   });
 
-  // Clear the table body
   tbody.innerHTML = "";
-
-  // Append sorted rows
   rows.forEach((row) => tbody.appendChild(row));
 
-  // Update header appearance
   updateSortIndicators(columnIndex);
 }
 
