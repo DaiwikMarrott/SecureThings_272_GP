@@ -21,9 +21,19 @@ let reports = [];
 let sortState = {};
 let mapMarkers = [];
 let crossSymbol = "&#x274C;";
-let sortSymbol = "&#x2195;"; // Up and down arrow
-let sortAscSymbol = "&#x2191;"; // Up arrow
-let sortDescSymbol = "&#x2193;"; // Down arrow
+
+const sortIcons = {
+  default: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 4l-6 6h12L12 4zM12 20l6-6H6l6 6z" fill="currentColor"/>
+  </svg>`,
+  asc: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 4l-6 6h12L12 4z" fill="currentColor"/>
+  </svg>`,
+  desc: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 20l6-6H6l6 6z" fill="currentColor"/>
+  </svg>`,
+};
+
 let locationInvalid = false;
 let currentDisplayedReportIndex = null;
 let filteredReports = [];
@@ -433,11 +443,8 @@ function initTable(headers) {
     } else {
       th.innerHTML = `${
         key.charAt(0).toUpperCase() + key.slice(1)
-      }<span class="sort-symbol">${sortSymbol}</span>`;
-      console.log(
-        key.charAt(0).toUpperCase() + key.slice(1),
-        (key.charAt(0).toUpperCase() + key.slice(1)).length
-      );
+      }<span class="sort-symbol">${sortIcons.default}</span>`;
+
       th.style.cursor = "pointer";
       th.addEventListener("click", () => {
         sortTable(index);
@@ -456,10 +463,10 @@ function updateSortIndicators(sortedColumnIndex) {
     if (symbolSpan) {
       if (index === sortedColumnIndex) {
         symbolSpan.innerHTML = sortState[sortedColumnIndex]
-          ? sortAscSymbol
-          : sortDescSymbol;
+          ? sortIcons.asc
+          : sortIcons.desc;
       } else {
-        symbolSpan.innerHTML = sortSymbol;
+        symbolSpan.innerHTML = sortIcons.default;
       }
     }
   });
